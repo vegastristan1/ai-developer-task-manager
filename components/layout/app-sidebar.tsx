@@ -7,6 +7,7 @@ import {
   Bot,
   FolderKanban,
   LayoutDashboard,
+  ListTodo,
   LogOut,
   MessageSquare,
   Settings,
@@ -38,6 +39,7 @@ import {
 const navItems = [
   { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { title: 'Projects', href: '/projects', icon: FolderKanban },
+  { title: 'Tasks', href: '/tasks', icon: ListTodo },
   { title: 'Sprints', href: '/sprints', icon: Timer },
   { title: 'AI Chat', href: '/chat', icon: MessageSquare },
   { title: 'Settings', href: '/settings', icon: Settings },
