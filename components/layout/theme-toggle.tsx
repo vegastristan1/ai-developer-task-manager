@@ -29,9 +29,7 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const mounted = useMounted();
 
-  const ActiveIcon = mounted
-    ? (themes.find((t) => t.value === theme)?.icon ?? Monitor)
-    : Sun;
+  const ActiveIcon = mounted ? (themes.find((t) => t.value === theme)?.icon ?? Monitor) : Sun;
 
   return (
     <DropdownMenu>

@@ -38,9 +38,14 @@ yarn-error.log*
 readme.md
 dont change/
 
+# prisma
+generated/
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/generated/prisma
