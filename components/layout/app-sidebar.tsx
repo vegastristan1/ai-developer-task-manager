@@ -2,8 +2,25 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, FolderKanban, LayoutDashboard, MessageSquare, Settings, Timer } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+import {
+  Bot,
+  FolderKanban,
+  LayoutDashboard,
+  LogOut,
+  MessageSquare,
+  Settings,
+  Timer,
+} from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Sidebar,
   SidebarContent,
@@ -26,8 +43,22 @@ const navItems = [
   { title: 'Settings', href: '/settings', icon: Settings },
 ];
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  user: {
+    name: string | null;
+    email: string | null;
+  };
+}
+
+export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname();
+
+  const initials = (user.name ?? user.email ?? '?')
+    .split(' ')
+    .map((part) => part.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <Sidebar collapsible="icon">
@@ -72,15 +103,48 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="flex items-center gap-2 rounded-md p-2">
-              <Avatar size="sm">
-                <AvatarFallback>G</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left leading-tight">
-                <span className="truncate text-sm font-medium">Guest</span>
-                <span className="text-muted-foreground truncate text-xs">Not signed in</span>
-              </div>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  tooltip={user.name ?? user.email ?? 'Account'}
+                >
+                  <Avatar size="sm">
+                    <AvatarFallback>{initials}</AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left leading-tight">
+                    <span className="truncate text-sm font-medium">{user.name ?? 'User'}</span>
+                    <span className="text-muted-foreground truncate text-xs">
+                      {user.email ?? ''}
+                    </span>
+                  </div>
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="right"
+                align="start"
+                className="w-56"
+                collisionPadding={8}
+              >
+                <DropdownMenuLabel className="font-normal">
+                  <div className="grid gap-0.5">
+                    <span className="truncate text-sm font-medium">{user.name ?? 'User'}</span>
+                    <span className="text-muted-foreground truncate text-xs">
+                      {user.email ?? ''}
+                    </span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => signOut({ callbackUrl: '/login' })}
+                  variant="destructive"
+                >
+                  <LogOut />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
