@@ -34,15 +34,15 @@ Instead of a generic todo app, this platform understands development work — it
 
 ## Tech Stack
 
-| Layer | Technology |
-| --- | --- |
-| Frontend | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui |
-| Backend | Next.js Route Handlers, Server Actions |
-| Database | PostgreSQL (Neon), Prisma ORM |
-| AI | OpenAI API |
-| Validation | Zod |
-| Testing | Vitest, React Testing Library, Playwright |
-| Deployment | Vercel |
+| Layer      | Technology                                          |
+| ---------- | --------------------------------------------------- |
+| Frontend   | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui |
+| Backend    | Next.js Route Handlers, Server Actions              |
+| Database   | PostgreSQL (Neon), Prisma ORM                       |
+| AI         | OpenAI API                                          |
+| Validation | Zod                                                 |
+| Testing    | Vitest, React Testing Library, Playwright           |
+| Deployment | Vercel                                              |
 
 ## Getting Started
 
@@ -83,15 +83,15 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start development server |
-| `npm run build` | Production build |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Format with Prettier |
-| `npm run db:migrate` | Run Prisma migrations |
-| `npm run db:seed` | Seed demo data |
-| `npm run db:studio` | Open Prisma Studio |
+| Command              | Description              |
+| -------------------- | ------------------------ |
+| `npm run dev`        | Start development server |
+| `npm run build`      | Production build         |
+| `npm run lint`       | Run ESLint               |
+| `npm run format`     | Format with Prettier     |
+| `npm run db:migrate` | Run Prisma migrations    |
+| `npm run db:seed`    | Seed demo data           |
+| `npm run db:studio`  | Open Prisma Studio       |
 
 ## License
 

@@ -1,16 +1,16 @@
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { TopNav } from '@/components/layout/top-nav';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { getSessionUser } from '@/lib/auth/session';
 
 export const instant = false;
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  const session = await auth();
+  const user = await getSessionUser();
 
-  if (!session?.user) {
+  if (!user) {
     redirect('/login');
   }
 
@@ -18,8 +18,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     <SidebarProvider>
       <AppSidebar
         user={{
-          name: session.user.name ?? null,
-          email: session.user.email ?? null,
+          name: user.name,
+          email: user.email,
         }}
       />
       <SidebarInset>

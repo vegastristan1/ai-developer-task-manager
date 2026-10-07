@@ -65,7 +65,13 @@ export default function RegisterPage() {
             <label htmlFor="name" className="text-sm font-medium">
               Name
             </label>
-            <Input id="name" name="name" placeholder="Alex Developer" autoComplete="name" required />
+            <Input
+              id="name"
+              name="name"
+              placeholder="Alex Developer"
+              autoComplete="name"
+              required
+            />
           </div>
           <div className="grid gap-2">
             <label htmlFor="email" className="text-sm font-medium">

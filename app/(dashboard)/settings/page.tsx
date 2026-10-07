@@ -1,19 +1,24 @@
 import type { Metadata } from 'next';
-import { Settings } from 'lucide-react';
-import { EmptyState } from '@/components/common/empty-state';
+import { redirect } from 'next/navigation';
 import { PageHeader } from '@/components/common/page-header';
+import { ProfileForm } from '@/components/settings/profile-form';
+import { getSessionUser } from '@/lib/auth/session';
 
 export const metadata: Metadata = { title: 'Settings' };
 
-export default function SettingsPage() {
+export const instant = false;
+
+export default async function SettingsPage() {
+  const user = await getSessionUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
   return (
     <>
       <PageHeader title="Settings" description="Manage your account and application preferences." />
-      <EmptyState
-        icon={<Settings />}
-        title="Settings are coming soon"
-        description="The settings page is planned as part of Phase 4 — Projects."
-      />
+      <ProfileForm initial={{ name: user.name ?? '', email: user.email }} />
     </>
   );
 }

@@ -37,6 +37,7 @@ yarn-error.log*
 # project
 readme.plan.md
 dont change/
+.vscode/
 
 # prisma
 generated/

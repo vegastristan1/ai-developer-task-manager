@@ -121,12 +121,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="right"
-                align="start"
-                className="w-56"
-                collisionPadding={8}
-              >
+              <DropdownMenuContent side="right" align="start" className="w-56" collisionPadding={8}>
                 <DropdownMenuLabel className="font-normal">
                   <div className="grid gap-0.5">
                     <span className="truncate text-sm font-medium">{user.name ?? 'User'}</span>
