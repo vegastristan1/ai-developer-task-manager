@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { BlockedBadge } from '@/components/tasks/blocked-badge';
 import { TaskPriorityBadge } from '@/components/tasks/task-priority-badge';
 import { taskTypeLabels, type TaskTypeValue } from '@/lib/validations/task';
 import type { TaskWithCounts } from '@/services/tasks';
@@ -65,6 +66,7 @@ export function TaskCard({ task }: TaskCardProps) {
             <span>{task._count.subtasks} subtasks</span>
           </>
         )}
+        {task.blockedCount > 0 && <BlockedBadge count={task.blockedCount} />}
       </div>
     </Link>
   );

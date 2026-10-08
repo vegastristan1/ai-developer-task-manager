@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BlockedBadge } from '@/components/tasks/blocked-badge';
 import { TaskPriorityBadge } from '@/components/tasks/task-priority-badge';
 import { TaskStatusBadge } from '@/components/tasks/task-status-badge';
 import { formatDate } from '@/lib/utils';
@@ -82,6 +83,7 @@ export function TaskListItem({ task }: TaskListItemProps) {
         )}
         <span aria-hidden>·</span>
         <span>{formatUpdated(task.updatedAt)}</span>
+        {task.blockedCount > 0 && <BlockedBadge count={task.blockedCount} />}
       </div>
     </Link>
   );

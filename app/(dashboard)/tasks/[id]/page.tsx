@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { CheckCircle2, Pencil } from 'lucide-react';
+import { CheckCircle2, Pencil, ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
+import { DependenciesCard } from '@/components/tasks/dependencies-card';
 import { DeleteTaskButton } from '@/components/tasks/delete-task-button';
 import { TaskPriorityBadge } from '@/components/tasks/task-priority-badge';
 import { TaskStatusBadge } from '@/components/tasks/task-status-badge';
@@ -12,7 +13,8 @@ import { Separator } from '@/components/ui/separator';
 import { getSessionUser } from '@/lib/auth/session';
 import { formatDate } from '@/lib/utils';
 import { complexityLabels, taskTypeLabels, technicalAreaLabels } from '@/lib/validations/task';
-import { getTask } from '@/services/tasks';
+import type { DependencyTask } from '@/services/dependencies';
+import { getTask, listTasks } from '@/services/tasks';
 
 export const metadata: Metadata = { title: 'Task' };
 
@@ -47,6 +49,28 @@ export default async function TaskDetailsPage({ params }: TaskPageProps) {
     ? task.acceptanceCriteria.filter((item): item is string => typeof item === 'string')
     : [];
 
+  const blockedBy: DependencyTask[] = task.dependencies.map((dependency) => ({
+    dependencyId: dependency.id,
+    id: dependency.dependsOn.id,
+    title: dependency.dependsOn.title,
+    status: dependency.dependsOn.status,
+    priority: dependency.dependsOn.priority,
+  }));
+  const blocks: DependencyTask[] = task.dependents.map((dependency) => ({
+    dependencyId: dependency.id,
+    id: dependency.task.id,
+    title: dependency.task.title,
+    status: dependency.task.status,
+    priority: dependency.task.priority,
+  }));
+  const openBlockers = blockedBy.filter((dependency) => dependency.status !== 'DONE');
+
+  const linkedIds = new Set([...blockedBy, ...blocks].map((dependency) => dependency.id));
+  const projectTasks = await listTasks(user.id, { projectId: task.projectId });
+  const candidates = projectTasks
+    .filter((candidate) => candidate.id !== task.id && !linkedIds.has(candidate.id))
+    .map((candidate) => ({ id: candidate.id, title: candidate.title, status: candidate.status }));
+
   return (
     <>
       <PageHeader title={task.title} description={`In ${task.project.name}`}>
@@ -58,6 +82,33 @@ export default async function TaskDetailsPage({ params }: TaskPageProps) {
         </Button>
         <DeleteTaskButton taskId={task.id} taskTitle={task.title} />
       </PageHeader>
+
+      {openBlockers.length > 0 && (
+        <div className="border-amber-600/40 bg-amber-600/10 flex items-start gap-2 rounded-lg border p-3 text-sm">
+          <ShieldAlert
+            className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400"
+            aria-hidden
+          />
+          <p>
+            Blocked by{' '}
+            <span className="font-medium">
+              {openBlockers.length} unfinished task{openBlockers.length === 1 ? '' : 's'}
+            </span>
+            {': '}
+            {openBlockers.map((dependency, index) => (
+              <span key={dependency.id}>
+                {index > 0 && ', '}
+                <Link
+                  href={`/tasks/${dependency.id}`}
+                  className="hover:text-primary underline-offset-4 hover:underline"
+                >
+                  {dependency.title}
+                </Link>
+              </span>
+            ))}
+          </p>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="grid content-start gap-4 lg:col-span-2">
@@ -128,6 +179,12 @@ export default async function TaskDetailsPage({ params }: TaskPageProps) {
               </CardContent>
             </Card>
           )}
+          <DependenciesCard
+            taskId={task.id}
+            blockedBy={blockedBy}
+            blocks={blocks}
+            candidates={candidates}
+          />
         </div>
 
         <div className="grid content-start gap-4">

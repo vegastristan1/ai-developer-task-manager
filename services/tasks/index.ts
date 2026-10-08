@@ -6,6 +6,7 @@ export type TaskWithCounts = Task & {
   project: { id: string; name: string };
   labels: { label: { id: string; name: string; color: string } }[];
   _count: { subtasks: number };
+  blockedCount: number;
   overdue: boolean;
 };
 
@@ -14,6 +15,14 @@ export type TaskDetails = Task & {
   sprint: { id: string; name: string } | null;
   labels: { label: { id: string; name: string; color: string } }[];
   subtasks: { id: string; title: string; status: string; priority: string }[];
+  dependencies: {
+    id: string;
+    dependsOn: { id: string; title: string; status: Task['status']; priority: Task['priority'] };
+  }[];
+  dependents: {
+    id: string;
+    task: { id: string; title: string; status: Task['status']; priority: Task['priority'] };
+  }[];
 };
 
 export type TaskMutationResult =
@@ -36,6 +45,10 @@ const listInclude = {
   project: { select: { id: true, name: true } },
   labels: { include: { label: { select: { id: true, name: true, color: true } } } },
   _count: { select: { subtasks: true } },
+  dependencies: {
+    where: { dependsOn: { status: { not: 'DONE' as const } } },
+    select: { dependsOnId: true },
+  },
 } satisfies object;
 
 const detailsInclude = {
@@ -45,6 +58,14 @@ const detailsInclude = {
   subtasks: {
     select: { id: true, title: true, status: true, priority: true },
     orderBy: { position: 'asc' as const },
+  },
+  dependencies: {
+    orderBy: { createdAt: 'asc' as const },
+    select: { id: true, dependsOn: { select: { id: true, title: true, status: true, priority: true } } },
+  },
+  dependents: {
+    orderBy: { createdAt: 'asc' as const },
+    select: { id: true, task: { select: { id: true, title: true, status: true, priority: true } } },
   },
 } satisfies object;
 
@@ -90,8 +111,9 @@ export async function listTasks(
   });
 
   const now = Date.now();
-  return tasks.map((task) => ({
+  return tasks.map(({ dependencies, ...task }) => ({
     ...task,
+    blockedCount: dependencies.length,
     overdue: !!task.dueDate && task.dueDate.getTime() < now && task.status !== 'DONE',
   }));
 }
