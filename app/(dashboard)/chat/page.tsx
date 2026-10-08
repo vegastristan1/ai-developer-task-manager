@@ -8,6 +8,8 @@ import { listProjects } from '@/services/projects';
 
 export const metadata: Metadata = { title: 'AI Chat' };
 
+export const instant = false;
+
 interface ChatPageProps {
   searchParams: Promise<{ c?: string; p?: string }>;
 }
