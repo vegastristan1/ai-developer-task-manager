@@ -26,6 +26,7 @@ export interface TaskFilters {
   priority?: string;
   type?: string;
   q?: string;
+  sort?: string;
 }
 
 const listInclude = {
@@ -44,11 +45,28 @@ const detailsInclude = {
   },
 } satisfies object;
 
+function orderByForSort(sort?: string): Prisma.TaskOrderByWithRelationInput[] {
+  switch (sort) {
+    case 'position':
+      return [{ position: 'asc' }, { updatedAt: 'desc' }];
+    case 'priority':
+      return [{ priority: 'desc' }, { position: 'asc' }];
+    case 'dueDate':
+      return [{ dueDate: 'asc' }, { position: 'asc' }];
+    case 'title':
+      return [{ title: 'asc' }];
+    case 'updatedAt':
+      return [{ updatedAt: 'desc' }, { position: 'asc' }];
+    default:
+      return [{ updatedAt: 'desc' }];
+  }
+}
+
 export async function listTasks(
   userId: string,
   filters: TaskFilters = {},
 ): Promise<TaskWithCounts[]> {
-  const { projectId, status, priority, type, q } = filters;
+  const { projectId, status, priority, type, q, sort } = filters;
 
   const tasks = await prisma.task.findMany({
     where: {
@@ -64,7 +82,7 @@ export async function listTasks(
         ],
       }),
     },
-    orderBy: { updatedAt: 'desc' },
+    orderBy: orderByForSort(sort),
     include: listInclude,
   });
 
@@ -170,6 +188,7 @@ export async function updateTask(
         project: { connect: { id: targetProjectId } },
         position: await nextPosition(targetProjectId),
       }),
+      ...(input.position !== undefined && { position: input.position }),
       ...(input.status !== undefined && { status: input.status }),
       ...(input.priority !== undefined && { priority: input.priority }),
       ...(input.type !== undefined && { type: input.type }),

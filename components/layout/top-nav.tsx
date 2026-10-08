@@ -8,6 +8,7 @@ import { ThemeToggle } from '@/components/layout/theme-toggle';
 const pageTitles: Record<string, string> = {
   dashboard: 'Dashboard',
   projects: 'Projects',
+  board: 'Board',
   tasks: 'Tasks',
   sprints: 'Sprints',
   chat: 'AI Chat',

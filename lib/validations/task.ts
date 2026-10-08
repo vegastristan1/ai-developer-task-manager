@@ -57,6 +57,16 @@ export const technicalAreaLabels: Record<(typeof technicalAreas)[number], string
   AI: 'AI',
 };
 
+export const taskSorts = ['position', 'updatedAt', 'priority', 'dueDate', 'title'] as const;
+
+export const taskSortLabels: Record<(typeof taskSorts)[number], string> = {
+  position: 'Manual order',
+  updatedAt: 'Recently updated',
+  priority: 'Priority',
+  dueDate: 'Due date',
+  title: 'Title',
+};
+
 export const complexities = ['XS', 'S', 'M', 'L', 'XL'] as const;
 
 export const complexityLabels: Record<(typeof complexities)[number], string> = {
@@ -112,7 +122,9 @@ export const taskSchema = z.object({
   labelIds: z.array(z.string().trim().min(1)).max(20).optional(),
 });
 
-export const updateTaskSchema = taskSchema.partial();
+export const updateTaskSchema = taskSchema.partial().extend({
+  position: z.number().finite().optional(),
+});
 
 export type TaskInput = z.infer<typeof taskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
@@ -121,3 +133,4 @@ export type TaskPriorityValue = (typeof taskPriorities)[number];
 export type TaskTypeValue = (typeof taskTypes)[number];
 export type TechnicalAreaValue = (typeof technicalAreas)[number];
 export type ComplexityValue = (typeof complexities)[number];
+export type TaskSortValue = (typeof taskSorts)[number];

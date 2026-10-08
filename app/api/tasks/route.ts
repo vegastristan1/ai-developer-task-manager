@@ -2,7 +2,13 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireAuth } from '@/lib/auth/session';
-import { taskPriorities, taskSchema, taskStatuses, taskTypes } from '@/lib/validations/task';
+import {
+  taskPriorities,
+  taskSchema,
+  taskSorts,
+  taskStatuses,
+  taskTypes,
+} from '@/lib/validations/task';
 import { createTask, listTasks } from '@/services/tasks';
 
 const filterSchema = z.object({
@@ -10,6 +16,7 @@ const filterSchema = z.object({
   status: z.enum(taskStatuses),
   priority: z.enum(taskPriorities),
   type: z.enum(taskTypes),
+  sort: z.enum(taskSorts),
   q: z.string().trim().max(200),
 });
 

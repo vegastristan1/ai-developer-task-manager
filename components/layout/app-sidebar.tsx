@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import {
   Bot,
+  Columns3,
   FolderKanban,
   LayoutDashboard,
   ListTodo,
@@ -39,6 +40,7 @@ import {
 const navItems = [
   { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { title: 'Projects', href: '/projects', icon: FolderKanban },
+  { title: 'Board', href: '/board', icon: Columns3 },
   { title: 'Tasks', href: '/tasks', icon: ListTodo },
   { title: 'Sprints', href: '/sprints', icon: Timer },
   { title: 'AI Chat', href: '/chat', icon: MessageSquare },

@@ -14,8 +14,12 @@ import {
 import {
   taskPriorities,
   taskPriorityLabels,
+  taskSorts,
+  taskSortLabels,
   taskStatuses,
   taskStatusLabels,
+  taskTypes,
+  taskTypeLabels,
 } from '@/lib/validations/task';
 
 const ALL = 'all';
@@ -29,22 +33,37 @@ export interface TaskFilterValues {
   projectId?: string;
   status?: string;
   priority?: string;
+  type?: string;
+  sort?: string;
   q?: string;
 }
 
 interface TaskFiltersProps {
   projects: ProjectOption[];
   initial: TaskFilterValues;
+  basePath?: string;
+  showStatus?: boolean;
+  showSort?: boolean;
+  defaultSort?: string;
 }
 
-export function TaskFilters({ projects, initial }: TaskFiltersProps) {
+export function TaskFilters({
+  projects,
+  initial,
+  basePath = '/tasks',
+  showStatus = true,
+  showSort = false,
+  defaultSort = 'updatedAt',
+}: TaskFiltersProps) {
   const router = useRouter();
 
   function apply(patch: Record<string, string | undefined>) {
     const next: Record<string, string | undefined> = {
       projectId: initial.projectId,
-      status: initial.status,
+      status: showStatus ? initial.status : undefined,
       priority: initial.priority,
+      type: initial.type,
+      sort: showSort ? initial.sort : undefined,
       q: initial.q,
       ...patch,
     };
@@ -55,10 +74,16 @@ export function TaskFilters({ projects, initial }: TaskFiltersProps) {
     }
 
     const query = params.toString();
-    router.replace(query ? `/tasks?${query}` : '/tasks');
+    router.replace(query ? `${basePath}?${query}` : basePath);
   }
 
-  const hasFilters = !!initial.projectId || !!initial.status || !!initial.priority || !!initial.q;
+  const hasFilters = !!(
+    initial.projectId ||
+    (showStatus && initial.status) ||
+    initial.priority ||
+    initial.type ||
+    initial.q
+  );
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -79,19 +104,21 @@ export function TaskFilters({ projects, initial }: TaskFiltersProps) {
         </SelectContent>
       </Select>
 
-      <Select value={initial.status ?? ALL} onValueChange={(value) => apply({ status: value })}>
-        <SelectTrigger className="w-44" aria-label="Filter by status">
-          <SelectValue placeholder="All statuses" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>All statuses</SelectItem>
-          {taskStatuses.map((status) => (
-            <SelectItem key={status} value={status}>
-              {taskStatusLabels[status]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {showStatus && (
+        <Select value={initial.status ?? ALL} onValueChange={(value) => apply({ status: value })}>
+          <SelectTrigger className="w-44" aria-label="Filter by status">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All statuses</SelectItem>
+            {taskStatuses.map((status) => (
+              <SelectItem key={status} value={status}>
+                {taskStatusLabels[status]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
 
       <Select value={initial.priority ?? ALL} onValueChange={(value) => apply({ priority: value })}>
         <SelectTrigger className="w-44" aria-label="Filter by priority">
@@ -106,6 +133,38 @@ export function TaskFilters({ projects, initial }: TaskFiltersProps) {
           ))}
         </SelectContent>
       </Select>
+
+      <Select value={initial.type ?? ALL} onValueChange={(value) => apply({ type: value })}>
+        <SelectTrigger className="w-44" aria-label="Filter by task type">
+          <SelectValue placeholder="All types" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL}>All types</SelectItem>
+          {taskTypes.map((type) => (
+            <SelectItem key={type} value={type}>
+              {taskTypeLabels[type]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {showSort && (
+        <Select
+          value={initial.sort ?? defaultSort}
+          onValueChange={(value) => apply({ sort: value })}
+        >
+          <SelectTrigger className="w-48" aria-label="Sort tasks">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            {taskSorts.map((sort) => (
+              <SelectItem key={sort} value={sort}>
+                {taskSortLabels[sort]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
 
       <form
         className="flex items-center gap-2"
@@ -128,7 +187,7 @@ export function TaskFilters({ projects, initial }: TaskFiltersProps) {
       </form>
 
       {hasFilters && (
-        <Button type="button" variant="ghost" onClick={() => router.replace('/tasks')}>
+        <Button type="button" variant="ghost" onClick={() => router.replace(basePath)}>
           <X />
           Clear
         </Button>
