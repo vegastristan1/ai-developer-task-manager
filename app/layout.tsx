@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { ThemeProvider } from '@/components/layout/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
@@ -40,6 +42,8 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
           <Toaster position="top-right" richColors closeButton />
         </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
