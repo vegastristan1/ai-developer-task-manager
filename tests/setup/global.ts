@@ -53,7 +53,15 @@ export default async function globalSetup(): Promise<(() => void) | undefined> {
   server = spawn(process.execPath, [nextBin, 'start', '--port', String(PORT)], {
     cwd: root,
     // Next.js skips .env.local when NODE_ENV=test (set by Vitest), so force production.
-    env: { ...process.env, NODE_ENV: 'production' },
+    // Blank the AI env so the suite always runs the deterministic mock path
+    // (dotenv-style loading never overrides vars that are already set).
+    env: {
+      ...process.env,
+      NODE_ENV: 'production',
+      OPENAI_API_KEY: '',
+      OPENAI_BASE_URL: '',
+      OPENAI_MODEL: '',
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   server.stderr?.on('data', (chunk: Buffer) => {

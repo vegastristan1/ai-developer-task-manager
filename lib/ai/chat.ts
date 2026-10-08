@@ -193,7 +193,7 @@ function actionFence(action: unknown): string {
 
 export function mockChatReply(ctx: ChatContext, userMessage: string): string {
   const parts: string[] = [
-    '[Mock reply — no OpenAI key is configured, so this is sample output. Add OPENAI_API_KEY to .env.local to chat with a live model.]',
+    '[Mock reply — no AI provider is configured, so this is sample output. Set OPENAI_API_KEY (and optionally OPENAI_BASE_URL / OPENAI_MODEL) in .env.local to chat with a live model.]',
   ];
 
   if (ctx.projectName) {

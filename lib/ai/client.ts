@@ -19,7 +19,7 @@ export class AiError extends Error {
   }
 }
 
-const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
+const DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com/v1';
 const REQUEST_TIMEOUT_MS = 45_000;
 
 function readEnv(name: string): string {
@@ -27,6 +27,11 @@ function readEnv(name: string): string {
   if (!value) return '';
   if (/^your[-_ ]/i.test(value)) return '';
   return value;
+}
+
+function chatCompletionsUrl(): string {
+  const base = readEnv('OPENAI_BASE_URL') || DEFAULT_OPENAI_BASE_URL;
+  return `${base.replace(/\/+$/, '')}/chat/completions`;
 }
 
 export function aiConfigured(): { configured: boolean; model: string } {
@@ -68,7 +73,7 @@ export async function chatJson<T>(options: ChatJsonOptions<T>): Promise<AiResult
 
   let response: Response;
   try {
-    response = await fetch(OPENAI_URL, {
+    response = await fetch(chatCompletionsUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -194,7 +199,7 @@ export async function chatStream(options: ChatStreamOptions): Promise<ChatStream
 
   let response: Response;
   try {
-    response = await fetch(OPENAI_URL, {
+    response = await fetch(chatCompletionsUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
