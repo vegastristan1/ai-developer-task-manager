@@ -113,3 +113,122 @@ export async function chatJson<T>(options: ChatJsonOptions<T>): Promise<AiResult
 
   return { data: parsed.data, source: 'openai' };
 }
+
+export interface ChatTurn {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+interface ChatStreamOptions {
+  system: string;
+  messages: ChatTurn[];
+  mock: () => string;
+}
+
+export interface ChatStreamResult {
+  iterator: AsyncGenerator<string>;
+  source: AiSource;
+  model: string;
+}
+
+async function* chunkedText(text: string, delayMs = 12): AsyncGenerator<string> {
+  const chunks = text.match(/\S+\s*/g) ?? [];
+  for (const chunk of chunks) {
+    yield chunk;
+    if (delayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  if (chunks.length === 0 && text.length > 0) {
+    yield text;
+  }
+}
+
+async function* sseDeltas(body: ReadableStream<Uint8Array>): AsyncGenerator<string> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('data:')) continue;
+
+        const payload = trimmed.slice(5).trim();
+        if (!payload || payload === '[DONE]') continue;
+
+        try {
+          const parsed = JSON.parse(payload) as {
+            choices?: { delta?: { content?: unknown } }[];
+          };
+          const delta = parsed.choices?.[0]?.delta?.content;
+          if (typeof delta === 'string' && delta.length > 0) {
+            yield delta;
+          }
+        } catch {
+          // ignore keep-alives and malformed chunks
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+export async function chatStream(options: ChatStreamOptions): Promise<ChatStreamResult> {
+  const { configured, model } = aiConfigured();
+
+  if (!configured) {
+    return { iterator: chunkedText(options.mock()), source: 'mock', model: '' };
+  }
+
+  const apiKey = readEnv('OPENAI_API_KEY');
+
+  let response: Response;
+  try {
+    response = await fetch(OPENAI_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.3,
+        stream: true,
+        messages: [
+          { role: 'system', content: options.system },
+          ...options.messages,
+        ],
+      }),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+  } catch (error) {
+    throw new AiError(
+      'request-failed',
+      error instanceof Error ? error.message : 'The OpenAI request failed.',
+    );
+  }
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new AiError(
+      'request-failed',
+      `OpenAI responded with ${response.status}. ${detail.slice(0, 300)}`,
+    );
+  }
+
+  if (!response.body) {
+    throw new AiError('invalid-output', 'OpenAI returned an empty stream.');
+  }
+
+  return { iterator: sseDeltas(response.body), source: 'openai', model };
+}
