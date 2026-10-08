@@ -7,3 +7,7 @@ export function formatDate(value: Date | string): string {
     year: 'numeric',
   }).format(new Date(value));
 }
+
+export function normalizeTitle(value: string): string {
+  return value.replace(/\s+/g, ' ').trim().toLowerCase();
+}

@@ -6,6 +6,7 @@ import type {
   ReviewResult,
 } from '@/lib/validations/ai';
 import type { AiTaskContext } from '@/lib/ai/prompts';
+import { normalizeTitle } from '@/lib/utils';
 
 function base(title: string): string {
   return title.replace(/\s+/g, ' ').trim().slice(0, 80);
@@ -13,8 +14,8 @@ function base(title: string): string {
 
 export function mockBreakdown(ctx: AiTaskContext): BreakdownResult {
   const title = base(ctx.title);
-  return {
-    subtasks: [
+  const existing = new Set(ctx.subtasks.map((subtask) => normalizeTitle(subtask)));
+  const suggestions: BreakdownResult['subtasks'] = [
       {
         title: `Clarify requirements and scope for ${title}`,
         description: 'Document edge cases, inputs, outputs and acceptance boundaries before coding.',
@@ -39,7 +40,10 @@ export function mockBreakdown(ctx: AiTaskContext): BreakdownResult {
         priority: 'MEDIUM',
         type: 'REFACTOR',
       },
-    ],
+    ];
+
+  return {
+    subtasks: suggestions.filter((suggestion) => !existing.has(normalizeTitle(suggestion.title))),
   };
 }
 

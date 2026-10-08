@@ -16,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { AiSource } from '@/lib/ai/client';
+import { normalizeTitle } from '@/lib/utils';
 import { complexityLabels, complexities, type ComplexityValue } from '@/lib/validations/task';
 import {
   reviewCategoryLabels,
@@ -37,6 +38,7 @@ export interface AiActionResult {
 interface AiActionDialogProps {
   taskId: string;
   projectId: string;
+  existingSubtasks: string[];
   result: AiActionResult;
   onClose: () => void;
 }
@@ -77,10 +79,17 @@ const dialogWidths: Record<AiAction, string> = {
   review: 'sm:max-w-2xl',
 };
 
-export function AiActionDialog({ taskId, projectId, result, onClose }: AiActionDialogProps) {
+export function AiActionDialog({
+  taskId,
+  projectId,
+  existingSubtasks,
+  result,
+  onClose,
+}: AiActionDialogProps) {
   const router = useRouter();
   const { action, data, source } = result;
   const [isSaving, setIsSaving] = useState(false);
+  const existingSet = new Set(existingSubtasks.map((title) => normalizeTitle(title)));
 
   const [rows, setRows] = useState<BreakdownRow[]>(() =>
     action === 'breakdown'
@@ -125,7 +134,12 @@ export function AiActionDialog({ taskId, projectId, result, onClose }: AiActionD
 
   async function approveBreakdown() {
     const tasks = rows
-      .filter((row) => row.selected && row.title.trim().length > 0)
+      .filter(
+        (row) =>
+          row.selected &&
+          row.title.trim().length > 0 &&
+          !existingSet.has(normalizeTitle(row.title)),
+      )
       .map((row) => ({
         title: row.title.trim(),
         description: row.description?.trim() || undefined,
@@ -134,7 +148,7 @@ export function AiActionDialog({ taskId, projectId, result, onClose }: AiActionD
       }));
 
     if (tasks.length === 0) {
-      toast.error('Select at least one subtask');
+      toast.error('Select at least one new subtask');
       return;
     }
 
@@ -151,7 +165,11 @@ export function AiActionDialog({ taskId, projectId, result, onClose }: AiActionD
         return;
       }
       const created = Array.isArray(payload?.tasks) ? payload.tasks.length : tasks.length;
-      toast.success(`Created ${created} subtask${created === 1 ? '' : 's'}`);
+      const skipped = Array.isArray(payload?.skipped) ? payload.skipped.length : 0;
+      toast.success(
+        `Created ${created} subtask${created === 1 ? '' : 's'}` +
+          (skipped > 0 ? ` (${skipped} duplicate${skipped === 1 ? '' : 's'} skipped)` : ''),
+      );
       router.refresh();
       onClose();
     } catch {
@@ -161,7 +179,10 @@ export function AiActionDialog({ taskId, projectId, result, onClose }: AiActionD
     }
   }
 
-  const selectedCount = rows.filter((row) => row.selected && row.title.trim().length > 0).length;
+  const selectedCount = rows.filter(
+    (row) =>
+      row.selected && row.title.trim().length > 0 && !existingSet.has(normalizeTitle(row.title)),
+  ).length;
   const criteriaValid =
     criteria.length > 0 &&
     criteria.length <= 50 &&
@@ -193,54 +214,72 @@ export function AiActionDialog({ taskId, projectId, result, onClose }: AiActionD
           </p>
         )}
 
-        {action === 'breakdown' && (
+        {action === 'breakdown' && rows.length === 0 && (
+          <div className="text-muted-foreground rounded-md border border-dashed p-4 text-center text-sm">
+            All suggested subtasks already exist — nothing new to add.
+          </div>
+        )}
+
+        {action === 'breakdown' && rows.length > 0 && (
           <ul className="grid max-h-[50vh] gap-2 overflow-y-auto pr-1">
-            {rows.map((row, index) => (
-              <li key={`${index}-${row.title}`} className="grid gap-1.5 rounded-md border p-2.5">
-                <div className="flex items-center gap-2.5">
-                  <input
-                    type="checkbox"
-                    checked={row.selected}
-                    onChange={(event) =>
-                      setRows((current) =>
-                        current.map((item, i) =>
-                          i === index ? { ...item, selected: event.target.checked } : item,
-                        ),
-                      )
-                    }
-                    className="accent-primary size-4"
-                    aria-label={`Select ${row.title}`}
-                  />
-                  <Input
-                    value={row.title}
-                    onChange={(event) =>
-                      setRows((current) =>
-                        current.map((item, i) =>
-                          i === index ? { ...item, title: event.target.value } : item,
-                        ),
-                      )
-                    }
-                    maxLength={200}
-                    className="h-8"
-                  />
-                </div>
-                {row.description && (
-                  <p className="text-muted-foreground pl-6 text-xs">{row.description}</p>
-                )}
-                <div className="flex gap-1.5 pl-6">
-                  {row.priority && (
-                    <span className="bg-muted rounded-md border px-1.5 py-0.5 text-[11px] font-medium">
-                      {row.priority}
-                    </span>
+            {rows.map((row, index) => {
+              const exists = existingSet.has(normalizeTitle(row.title));
+              return (
+                <li
+                  key={`${index}-${row.title}`}
+                  className="grid gap-1.5 rounded-md border p-2.5"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={exists ? false : row.selected}
+                      disabled={exists}
+                      onChange={(event) =>
+                        setRows((current) =>
+                          current.map((item, i) =>
+                            i === index ? { ...item, selected: event.target.checked } : item,
+                          ),
+                        )
+                      }
+                      className="accent-primary size-4 disabled:opacity-50"
+                      aria-label={`Select ${row.title}`}
+                    />
+                    <Input
+                      value={row.title}
+                      onChange={(event) =>
+                        setRows((current) =>
+                          current.map((item, i) =>
+                            i === index ? { ...item, title: event.target.value } : item,
+                          ),
+                        )
+                      }
+                      maxLength={200}
+                      className="h-8"
+                    />
+                  </div>
+                  {row.description && (
+                    <p className="text-muted-foreground pl-6 text-xs">{row.description}</p>
                   )}
-                  {row.type && (
-                    <span className="bg-muted rounded-md border px-1.5 py-0.5 text-[11px] font-medium">
-                      {row.type}
-                    </span>
-                  )}
-                </div>
-              </li>
-            ))}
+                  <div className="flex flex-wrap gap-1.5 pl-6">
+                    {exists && (
+                      <span className="border-amber-600/40 bg-amber-600/10 text-amber-700 dark:text-amber-400 rounded-md border px-1.5 py-0.5 text-[11px] font-medium">
+                        already exists
+                      </span>
+                    )}
+                    {row.priority && (
+                      <span className="bg-muted rounded-md border px-1.5 py-0.5 text-[11px] font-medium">
+                        {row.priority}
+                      </span>
+                    )}
+                    {row.type && (
+                      <span className="bg-muted rounded-md border px-1.5 py-0.5 text-[11px] font-medium">
+                        {row.type}
+                      </span>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
 
@@ -358,9 +397,11 @@ export function AiActionDialog({ taskId, projectId, result, onClose }: AiActionD
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isSaving}>
-            {action === 'review' ? 'Close' : 'Cancel'}
+            {action === 'review' || (action === 'breakdown' && rows.length === 0)
+              ? 'Close'
+              : 'Cancel'}
           </Button>
-          {action === 'breakdown' && (
+          {action === 'breakdown' && rows.length > 0 && (
             <Button onClick={approveBreakdown} disabled={isSaving || selectedCount === 0}>
               {isSaving && <Loader2 className="animate-spin" />}
               Create {selectedCount > 0 ? `${selectedCount} ` : ''}subtask

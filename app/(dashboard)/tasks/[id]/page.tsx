@@ -267,7 +267,11 @@ export default async function TaskDetailsPage({ params }: TaskPageProps) {
               <DetailRow label="Updated" value={formatDate(task.updatedAt)} />
             </CardContent>
           </Card>
-          <TaskAiCard taskId={task.id} projectId={task.projectId} />
+          <TaskAiCard
+            taskId={task.id}
+            projectId={task.projectId}
+            existingSubtasks={task.subtasks.map((subtask) => subtask.title)}
+          />
         </div>
       </div>
     </>

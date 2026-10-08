@@ -11,6 +11,7 @@ import type { AiAction } from '@/lib/validations/ai';
 interface TaskAiCardProps {
   taskId: string;
   projectId: string;
+  existingSubtasks: string[];
 }
 
 const actions: { action: AiAction; label: string; icon: typeof ListTree }[] = [
@@ -21,7 +22,7 @@ const actions: { action: AiAction; label: string; icon: typeof ListTree }[] = [
   { action: 'review', label: 'Review task', icon: ShieldCheck },
 ];
 
-export function TaskAiCard({ taskId, projectId }: TaskAiCardProps) {
+export function TaskAiCard({ taskId, projectId, existingSubtasks }: TaskAiCardProps) {
   const [pending, setPending] = useState<AiAction | null>(null);
   const [result, setResult] = useState<AiActionResult | null>(null);
 
@@ -75,6 +76,7 @@ export function TaskAiCard({ taskId, projectId }: TaskAiCardProps) {
         <AiActionDialog
           taskId={taskId}
           projectId={projectId}
+          existingSubtasks={existingSubtasks}
           result={result}
           onClose={() => setResult(null)}
         />

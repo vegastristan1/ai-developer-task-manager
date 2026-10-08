@@ -1,5 +1,6 @@
 import { Prisma, type Task } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { normalizeTitle } from '@/lib/utils';
 import type { BulkTaskInput, TaskInput, UpdateTaskInput } from '@/lib/validations/task';
 
 export type TaskWithCounts = Task & {
@@ -39,7 +40,7 @@ export type TaskMutationResult =
     };
 
 export type BulkTaskMutationResult =
-  | { ok: true; tasks: TaskDetails[] }
+  | { ok: true; tasks: TaskDetails[]; skipped: string[] }
   | {
       ok: false;
       reason: 'project-not-found' | 'parent-not-found' | 'label-not-found' | 'sprint-not-found';
@@ -340,10 +341,35 @@ export async function createTasksBulk(
     }
   }
 
+  const existingTitles = await prisma.task.findMany({
+    where: {
+      projectId: input.projectId,
+      parentTaskId: input.parentTaskId ?? null,
+    },
+    select: { title: true },
+  });
+  const seen = new Set(existingTitles.map((task) => normalizeTitle(task.title)));
+
+  const accepted: BulkTaskInput['tasks'] = [];
+  const skipped: string[] = [];
+  for (const taskInput of input.tasks) {
+    const key = normalizeTitle(taskInput.title);
+    if (seen.has(key)) {
+      skipped.push(taskInput.title);
+      continue;
+    }
+    seen.add(key);
+    accepted.push(taskInput);
+  }
+
+  if (accepted.length === 0) {
+    return { ok: true, tasks: [], skipped };
+  }
+
   const start = await nextPosition(input.projectId);
 
   const tasks = await prisma.$transaction(
-    input.tasks.map((taskInput, index) =>
+    accepted.map((taskInput, index) =>
       prisma.task.create({
         data: {
           title: taskInput.title,
@@ -372,5 +398,5 @@ export async function createTasksBulk(
     ),
   );
 
-  return { ok: true, tasks };
+  return { ok: true, tasks, skipped };
 }

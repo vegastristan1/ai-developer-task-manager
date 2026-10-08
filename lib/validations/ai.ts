@@ -11,7 +11,7 @@ export const breakdownSchema = z.object({
         type: z.enum(taskTypes).optional(),
       }),
     )
-    .min(1, 'The AI must return at least one subtask')
+    .min(0)
     .max(8, 'The AI can return at most 8 subtasks'),
 });
 
