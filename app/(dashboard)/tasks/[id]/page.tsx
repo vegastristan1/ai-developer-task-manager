@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { CheckCircle2, Pencil, ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
+import { TaskAiCard } from '@/components/ai/task-ai-card';
 import { DependenciesCard } from '@/components/tasks/dependencies-card';
 import { DeleteTaskButton } from '@/components/tasks/delete-task-button';
 import { TaskPriorityBadge } from '@/components/tasks/task-priority-badge';
@@ -266,6 +267,7 @@ export default async function TaskDetailsPage({ params }: TaskPageProps) {
               <DetailRow label="Updated" value={formatDate(task.updatedAt)} />
             </CardContent>
           </Card>
+          <TaskAiCard taskId={task.id} projectId={task.projectId} />
         </div>
       </div>
     </>

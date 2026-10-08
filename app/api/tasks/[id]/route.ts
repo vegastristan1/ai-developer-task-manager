@@ -46,7 +46,11 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
           ? 'Project not found'
           : result.reason === 'sprint-not-found'
             ? 'Sprint not found in this project'
-            : 'Label not found in project';
+            : result.reason === 'parent-not-found'
+              ? 'Parent task not found in this project'
+              : result.reason === 'self-parent'
+                ? 'A task cannot be its own parent'
+                : 'Label not found in project';
     return NextResponse.json({ error }, { status });
   }
 

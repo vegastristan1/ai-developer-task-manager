@@ -108,6 +108,7 @@ export const taskSchema = z.object({
   estimatedEffort: nullableText(50),
   actualEffort: nullableText(50),
   technicalNotes: nullableText(5000),
+  implementationPlan: nullableText(20000),
   acceptanceCriteria: z
     .array(
       z
@@ -121,14 +122,25 @@ export const taskSchema = z.object({
     .transform((value) => (value === undefined ? undefined : value.length ? value : null)),
   labelIds: z.array(z.string().trim().min(1)).max(20).optional(),
   sprintId: z.string().trim().min(1).nullable().optional(),
+  parentTaskId: z.string().trim().min(1).nullable().optional(),
 });
 
 export const updateTaskSchema = taskSchema.partial().extend({
   position: z.number().finite().optional(),
 });
 
+export const bulkTaskSchema = z.object({
+  projectId: z.string().trim().min(1, 'Project is required'),
+  parentTaskId: z.string().trim().min(1).optional(),
+  tasks: z
+    .array(taskSchema.omit({ projectId: true, parentTaskId: true }))
+    .min(1, 'At least one task is required')
+    .max(20, 'A bulk request can create at most 20 tasks'),
+});
+
 export type TaskInput = z.infer<typeof taskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
+export type BulkTaskInput = z.infer<typeof bulkTaskSchema>;
 export type TaskStatusValue = (typeof taskStatuses)[number];
 export type TaskPriorityValue = (typeof taskPriorities)[number];
 export type TaskTypeValue = (typeof taskTypes)[number];

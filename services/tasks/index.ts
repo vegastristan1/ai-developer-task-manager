@@ -1,6 +1,6 @@
 import { Prisma, type Task } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
-import type { TaskInput, UpdateTaskInput } from '@/lib/validations/task';
+import type { BulkTaskInput, TaskInput, UpdateTaskInput } from '@/lib/validations/task';
 
 export type TaskWithCounts = Task & {
   project: { id: string; name: string };
@@ -29,7 +29,20 @@ export type TaskMutationResult =
   | { ok: true; task: TaskDetails }
   | {
       ok: false;
-      reason: 'project-not-found' | 'task-not-found' | 'label-not-found' | 'sprint-not-found';
+      reason:
+        | 'project-not-found'
+        | 'task-not-found'
+        | 'label-not-found'
+        | 'sprint-not-found'
+        | 'parent-not-found'
+        | 'self-parent';
+    };
+
+export type BulkTaskMutationResult =
+  | { ok: true; tasks: TaskDetails[] }
+  | {
+      ok: false;
+      reason: 'project-not-found' | 'parent-not-found' | 'label-not-found' | 'sprint-not-found';
     };
 
 export interface TaskFilters {
@@ -141,6 +154,14 @@ async function sprintInProject(sprintId: string, projectId: string): Promise<boo
   return !!sprint;
 }
 
+async function parentInProject(parentTaskId: string, projectId: string): Promise<boolean> {
+  const parent = await prisma.task.findFirst({
+    where: { id: parentTaskId, projectId },
+    select: { id: true },
+  });
+  return !!parent;
+}
+
 async function nextPosition(projectId: string): Promise<number> {
   const last = await prisma.task.findFirst({
     where: { projectId },
@@ -166,6 +187,10 @@ export async function createTask(userId: string, input: TaskInput): Promise<Task
     return { ok: false, reason: 'sprint-not-found' };
   }
 
+  if (input.parentTaskId && !(await parentInProject(input.parentTaskId, input.projectId))) {
+    return { ok: false, reason: 'parent-not-found' };
+  }
+
   const task = await prisma.task.create({
     data: {
       title: input.title,
@@ -179,10 +204,12 @@ export async function createTask(userId: string, input: TaskInput): Promise<Task
       estimatedEffort: input.estimatedEffort ?? null,
       actualEffort: input.actualEffort ?? null,
       technicalNotes: input.technicalNotes ?? null,
+      implementationPlan: input.implementationPlan ?? null,
       acceptanceCriteria: input.acceptanceCriteria ?? Prisma.JsonNull,
       position: await nextPosition(input.projectId),
       project: { connect: { id: input.projectId } },
       ...(input.sprintId && { sprint: { connect: { id: input.sprintId } } }),
+      ...(input.parentTaskId && { parentTask: { connect: { id: input.parentTaskId } } }),
       labels: { create: labelIds.map((labelId) => ({ labelId })) },
     },
     include: detailsInclude,
@@ -221,6 +248,13 @@ export async function updateTask(
     return { ok: false, reason: 'sprint-not-found' };
   }
 
+  if (input.parentTaskId !== undefined && input.parentTaskId !== null) {
+    if (input.parentTaskId === id) return { ok: false, reason: 'self-parent' };
+    if (!(await parentInProject(input.parentTaskId, targetProjectId))) {
+      return { ok: false, reason: 'parent-not-found' };
+    }
+  }
+
   const task = await prisma.task.update({
     where: { id },
     data: {
@@ -240,6 +274,9 @@ export async function updateTask(
       ...(input.estimatedEffort !== undefined && { estimatedEffort: input.estimatedEffort }),
       ...(input.actualEffort !== undefined && { actualEffort: input.actualEffort }),
       ...(input.technicalNotes !== undefined && { technicalNotes: input.technicalNotes }),
+      ...(input.implementationPlan !== undefined && {
+        implementationPlan: input.implementationPlan,
+      }),
       ...(input.acceptanceCriteria !== undefined && {
         acceptanceCriteria: input.acceptanceCriteria ?? Prisma.JsonNull,
       }),
@@ -251,6 +288,11 @@ export async function updateTask(
       }),
       ...(input.sprintId !== undefined && {
         sprint: input.sprintId ? { connect: { id: input.sprintId } } : { disconnect: true },
+      }),
+      ...(input.parentTaskId !== undefined && {
+        parentTask: input.parentTaskId
+          ? { connect: { id: input.parentTaskId } }
+          : { disconnect: true },
       }),
     },
     include: detailsInclude,
@@ -268,4 +310,67 @@ export async function deleteTask(id: string, userId: string): Promise<boolean> {
 
   await prisma.task.delete({ where: { id } });
   return true;
+}
+
+export async function createTasksBulk(
+  userId: string,
+  input: BulkTaskInput,
+): Promise<BulkTaskMutationResult> {
+  const project = await prisma.project.findFirst({
+    where: { id: input.projectId, userId },
+    select: { id: true },
+  });
+  if (!project) return { ok: false, reason: 'project-not-found' };
+
+  if (input.parentTaskId && !(await parentInProject(input.parentTaskId, input.projectId))) {
+    return { ok: false, reason: 'parent-not-found' };
+  }
+
+  const labelIds = [...new Set(input.tasks.flatMap((task) => task.labelIds ?? []))];
+  if (labelIds.length > 0 && !(await validateLabelIds(labelIds, input.projectId))) {
+    return { ok: false, reason: 'label-not-found' };
+  }
+
+  const sprintIds = [
+    ...new Set(input.tasks.map((task) => task.sprintId).filter((id): id is string => !!id)),
+  ];
+  for (const sprintId of sprintIds) {
+    if (!(await sprintInProject(sprintId, input.projectId))) {
+      return { ok: false, reason: 'sprint-not-found' };
+    }
+  }
+
+  const start = await nextPosition(input.projectId);
+
+  const tasks = await prisma.$transaction(
+    input.tasks.map((taskInput, index) =>
+      prisma.task.create({
+        data: {
+          title: taskInput.title,
+          description: taskInput.description ?? null,
+          status: taskInput.status ?? 'TODO',
+          priority: taskInput.priority ?? 'MEDIUM',
+          type: taskInput.type ?? 'FEATURE',
+          technicalArea: taskInput.technicalArea ?? null,
+          complexity: taskInput.complexity ?? null,
+          dueDate: taskInput.dueDate ?? null,
+          estimatedEffort: taskInput.estimatedEffort ?? null,
+          actualEffort: taskInput.actualEffort ?? null,
+          technicalNotes: taskInput.technicalNotes ?? null,
+          implementationPlan: taskInput.implementationPlan ?? null,
+          acceptanceCriteria: taskInput.acceptanceCriteria ?? Prisma.JsonNull,
+          position: start + index,
+          project: { connect: { id: input.projectId } },
+          ...(input.parentTaskId && { parentTask: { connect: { id: input.parentTaskId } } }),
+          ...(taskInput.sprintId && { sprint: { connect: { id: taskInput.sprintId } } }),
+          labels: {
+            create: (taskInput.labelIds ?? []).map((labelId) => ({ labelId })),
+          },
+        },
+        include: detailsInclude,
+      }),
+    ),
+  );
+
+  return { ok: true, tasks };
 }
