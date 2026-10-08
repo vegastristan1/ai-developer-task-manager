@@ -1,14 +1,26 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/session';
-import { projectSchema } from '@/lib/validations/project';
+import { projectFilterSchema, projectSchema } from '@/lib/validations/project';
 import { createProject, listProjects } from '@/services/projects';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const { session, response } = await requireAuth();
   if (!session) return response;
 
-  const projects = await listProjects(session.user.id);
+  const raw = Object.fromEntries(
+    [...request.nextUrl.searchParams.entries()].filter(([, value]) => value !== ''),
+  );
+  const parsed = projectFilterSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Invalid filters', issues: parsed.error.issues },
+      { status: 422 },
+    );
+  }
+
+  const projects = await listProjects(session.user.id, parsed.data);
   return NextResponse.json({ projects });
 }
 

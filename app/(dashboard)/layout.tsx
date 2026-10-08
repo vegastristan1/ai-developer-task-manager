@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { CommandPalette } from '@/components/layout/command-palette';
 import { TopNav } from '@/components/layout/top-nav';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { getSessionUser } from '@/lib/auth/session';
@@ -24,6 +25,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       />
       <SidebarInset>
         <TopNav />
+        <CommandPalette />
         <main className="flex flex-1 flex-col gap-6 p-4 md:p-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>

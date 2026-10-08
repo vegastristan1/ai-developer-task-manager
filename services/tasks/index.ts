@@ -48,9 +48,11 @@ export type BulkTaskMutationResult =
 
 export interface TaskFilters {
   projectId?: string;
+  sprintId?: string;
   status?: string;
   priority?: string;
   type?: string;
+  technicalArea?: string;
   q?: string;
   sort?: string;
 }
@@ -104,15 +106,17 @@ export async function listTasks(
   userId: string,
   filters: TaskFilters = {},
 ): Promise<TaskWithCounts[]> {
-  const { projectId, status, priority, type, q, sort } = filters;
+  const { projectId, sprintId, status, priority, type, technicalArea, q, sort } = filters;
 
   const tasks = await prisma.task.findMany({
     where: {
       project: { userId },
       ...(projectId && { projectId }),
+      ...(sprintId && { sprintId }),
       ...(status && { status: status as Task['status'] }),
       ...(priority && { priority: priority as Task['priority'] }),
       ...(type && { type: type as Task['type'] }),
+      ...(technicalArea && { technicalArea: technicalArea as Task['technicalArea'] }),
       ...(q && {
         OR: [
           { title: { contains: q, mode: 'insensitive' } },

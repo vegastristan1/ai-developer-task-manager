@@ -1,6 +1,6 @@
 import type { Prisma, Project } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
-import type { ProjectInput, UpdateProjectInput } from '@/lib/validations/project';
+import type { ProjectFilters, ProjectInput, UpdateProjectInput } from '@/lib/validations/project';
 
 type ProjectWithCounts = Project & {
   _count: { tasks: number; sprints: number; labels: number };
@@ -12,9 +12,21 @@ const withCounts = {
   include: { _count: { select: { tasks: true, sprints: true, labels: true } } },
 } satisfies { include: Prisma.ProjectInclude };
 
-export async function listProjects(userId: string): Promise<ProjectWithCounts[]> {
+export async function listProjects(
+  userId: string,
+  filters: ProjectFilters = {},
+): Promise<ProjectWithCounts[]> {
   return prisma.project.findMany({
-    where: { userId },
+    where: {
+      userId,
+      ...(filters.q && {
+        OR: [
+          { name: { contains: filters.q, mode: 'insensitive' } },
+          { description: { contains: filters.q, mode: 'insensitive' } },
+        ],
+      }),
+      ...(filters.status && { status: filters.status }),
+    },
     orderBy: { updatedAt: 'desc' },
     ...withCounts,
   });

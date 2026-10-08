@@ -42,6 +42,14 @@ export const projectSchema = z.object({
 
 export const updateProjectSchema = projectSchema.partial();
 
+export const projectFilterSchema = z
+  .object({
+    q: z.string().trim().max(200, 'Search must be 200 characters or fewer'),
+    status: z.enum(projectStatuses),
+  })
+  .partial();
+
 export type ProjectInput = z.infer<typeof projectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
+export type ProjectFilters = z.infer<typeof projectFilterSchema>;
 export type ProjectStatusValue = (typeof projectStatuses)[number];

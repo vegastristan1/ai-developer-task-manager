@@ -20,6 +20,8 @@ import {
   taskStatusLabels,
   taskTypes,
   taskTypeLabels,
+  technicalAreas,
+  technicalAreaLabels,
 } from '@/lib/validations/task';
 
 const ALL = 'all';
@@ -31,15 +33,18 @@ interface ProjectOption {
 
 export interface TaskFilterValues {
   projectId?: string;
+  sprintId?: string;
   status?: string;
   priority?: string;
   type?: string;
+  technicalArea?: string;
   sort?: string;
   q?: string;
 }
 
 interface TaskFiltersProps {
   projects: ProjectOption[];
+  sprints?: ProjectOption[];
   initial: TaskFilterValues;
   basePath?: string;
   showStatus?: boolean;
@@ -49,6 +54,7 @@ interface TaskFiltersProps {
 
 export function TaskFilters({
   projects,
+  sprints,
   initial,
   basePath = '/tasks',
   showStatus = true,
@@ -60,9 +66,11 @@ export function TaskFilters({
   function apply(patch: Record<string, string | undefined>) {
     const next: Record<string, string | undefined> = {
       projectId: initial.projectId,
+      sprintId: initial.sprintId,
       status: showStatus ? initial.status : undefined,
       priority: initial.priority,
       type: initial.type,
+      technicalArea: initial.technicalArea,
       sort: showSort ? initial.sort : undefined,
       q: initial.q,
       ...patch,
@@ -79,9 +87,11 @@ export function TaskFilters({
 
   const hasFilters = !!(
     initial.projectId ||
+    initial.sprintId ||
     (showStatus && initial.status) ||
     initial.priority ||
     initial.type ||
+    initial.technicalArea ||
     initial.q
   );
 
@@ -147,6 +157,39 @@ export function TaskFilters({
           ))}
         </SelectContent>
       </Select>
+
+      <Select
+        value={initial.technicalArea ?? ALL}
+        onValueChange={(value) => apply({ technicalArea: value })}
+      >
+        <SelectTrigger className="w-44" aria-label="Filter by technical area">
+          <SelectValue placeholder="All areas" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL}>All areas</SelectItem>
+          {technicalAreas.map((area) => (
+            <SelectItem key={area} value={area}>
+              {technicalAreaLabels[area]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {sprints && sprints.length > 0 && (
+        <Select value={initial.sprintId ?? ALL} onValueChange={(value) => apply({ sprintId: value })}>
+          <SelectTrigger className="w-44" aria-label="Filter by sprint">
+            <SelectValue placeholder="All sprints" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All sprints</SelectItem>
+            {sprints.map((sprint) => (
+              <SelectItem key={sprint.id} value={sprint.id}>
+                {sprint.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
 
       {showSort && (
         <Select

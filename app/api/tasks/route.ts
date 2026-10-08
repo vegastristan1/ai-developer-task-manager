@@ -8,14 +8,17 @@ import {
   taskSorts,
   taskStatuses,
   taskTypes,
+  technicalAreas,
 } from '@/lib/validations/task';
 import { createTask, listTasks } from '@/services/tasks';
 
 const filterSchema = z.object({
   projectId: z.string().min(1),
+  sprintId: z.string().min(1),
   status: z.enum(taskStatuses),
   priority: z.enum(taskPriorities),
   type: z.enum(taskTypes),
+  technicalArea: z.enum(technicalAreas),
   sort: z.enum(taskSorts),
   q: z.string().trim().max(200),
 });
