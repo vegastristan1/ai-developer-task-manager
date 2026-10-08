@@ -400,6 +400,7 @@ export async function createTasksBulk(
         include: detailsInclude,
       }),
     ),
+    { timeout: 15_000 },
   );
 
   return { ok: true, tasks, skipped };
