@@ -1,18 +1,24 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/session';
-import { labelSchema } from '@/lib/validations/label';
+import { labelQuerySchema, labelSchema } from '@/lib/validations/label';
 import { createLabel, listLabels } from '@/services/labels';
 
 export async function GET(request: NextRequest) {
   const { session, response } = await requireAuth();
   if (!session) return response;
 
-  const projectId = request.nextUrl.searchParams.get('projectId');
-  if (!projectId) {
-    return NextResponse.json({ error: 'projectId is required' }, { status: 422 });
+  const parsedQuery = labelQuerySchema.safeParse({
+    projectId: request.nextUrl.searchParams.get('projectId') ?? undefined,
+  });
+  if (!parsedQuery.success) {
+    return NextResponse.json(
+      { error: 'Invalid input', issues: parsedQuery.error.issues },
+      { status: 422 },
+    );
   }
 
+  const { projectId } = parsedQuery.data;
   const labels = await listLabels(session.user.id, projectId);
   if (!labels) {
     return NextResponse.json({ error: 'Project not found' }, { status: 404 });

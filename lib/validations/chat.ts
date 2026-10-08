@@ -11,3 +11,7 @@ export const chatRequestSchema = z.object({
 });
 
 export type ChatRequest = z.infer<typeof chatRequestSchema>;
+
+export const conversationQuerySchema = z.object({
+  projectId: z.string().trim().min(1, 'projectId cannot be empty').optional(),
+});

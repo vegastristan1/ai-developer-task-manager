@@ -39,3 +39,7 @@ export const updateLabelSchema = z.object({
 
 export type LabelInput = z.infer<typeof labelSchema>;
 export type UpdateLabelInput = z.infer<typeof updateLabelSchema>;
+
+export const labelQuerySchema = z.object({
+  projectId: z.string().trim().min(1, 'projectId is required'),
+});

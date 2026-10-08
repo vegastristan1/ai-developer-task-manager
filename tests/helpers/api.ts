@@ -73,11 +73,18 @@ export class ApiClient {
     return this.request<T>('PUT', path, body);
   }
 
+  patch<T = any>(path: string, body?: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>('PATCH', path, body);
+  }
+
   delete<T = any>(path: string): Promise<ApiResponse<T>> {
     return this.request<T>('DELETE', path);
   }
 
-  async login(email: string, password: string = PASSWORD): Promise<void> {
+  async login(
+    email: string,
+    password: string = PASSWORD,
+  ): Promise<{ status: number; retryAfter: string | null }> {
     const csrf = await this.get<{ csrfToken: string }>('/api/auth/csrf');
     const body = new URLSearchParams({
       csrfToken: csrf.json.csrfToken,
@@ -98,6 +105,7 @@ export class ApiClient {
       redirect: 'manual',
     });
     this.captureCookies(response);
+    return { status: response.status, retryAfter: response.headers.get('retry-after') };
   }
 }
 

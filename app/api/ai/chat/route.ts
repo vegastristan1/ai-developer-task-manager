@@ -5,8 +5,14 @@ import { buildChatContext, buildSystemPrompt, mockChatReply } from '@/lib/ai/cha
 import { AiError, chatStream } from '@/lib/ai/client';
 import { requireAuth } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
+import { readJsonBody } from '@/lib/security/body';
+import { rateLimitResponse } from '@/lib/security/responses';
 import { chatRequestSchema } from '@/lib/validations/chat';
 import { appendMessage, createConversation } from '@/services/ai/chat';
+
+const CHAT_WINDOW_MS = 60 * 1000;
+const CHAT_LIMIT_PER_USER = 20;
+const CHAT_MAX_BODY_BYTES = 64 * 1024;
 
 function titleFrom(content: string): string {
   const clean = content.replace(/\s+/g, ' ').trim();
@@ -18,8 +24,13 @@ export async function POST(request: NextRequest) {
   if (!session) return response;
   const userId = session.user.id;
 
-  const body = await request.json().catch(() => null);
-  const parsed = chatRequestSchema.safeParse(body);
+  const limited = rateLimitResponse(`ai-chat:${userId}`, CHAT_LIMIT_PER_USER, CHAT_WINDOW_MS);
+  if (limited) return limited;
+
+  const parsedBody = await readJsonBody<{ content?: unknown }>(request, CHAT_MAX_BODY_BYTES);
+  if (!parsedBody.ok) return parsedBody.response;
+
+  const parsed = chatRequestSchema.safeParse(parsedBody.body);
 
   if (!parsed.success) {
     return NextResponse.json(

@@ -4,9 +4,29 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db/prisma';
 import { loginSchema } from '@/lib/validations/auth';
 
+const isProduction = process.env.NODE_ENV === 'production';
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+
+if (isProduction && (!process.env.AUTH_SECRET || process.env.AUTH_SECRET.length < 32)) {
+  throw new Error(
+    'AUTH_SECRET must be set to at least 32 characters when running in production.',
+  );
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
-  session: { strategy: 'jwt' },
+  session: { strategy: 'jwt', maxAge: SESSION_MAX_AGE_SECONDS },
+  cookies: {
+    sessionToken: {
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProduction,
+        path: '/',
+        maxAge: SESSION_MAX_AGE_SECONDS,
+      },
+    },
+  },
   pages: {
     signIn: '/login',
   },

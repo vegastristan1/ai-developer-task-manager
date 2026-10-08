@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { AiError } from '@/lib/ai/client';
 import { requireAuth } from '@/lib/auth/session';
+import { rateLimitResponse } from '@/lib/security/responses';
 import type { AiServiceResult } from '@/services/ai';
+
+const AI_TOOL_WINDOW_MS = 60 * 1000;
+const AI_TOOL_LIMIT_PER_USER = 10;
 
 export type AiRouteContext = { params: Promise<{ id: string }> };
 
@@ -11,6 +15,13 @@ export async function runAiRoute<T>(
 ): Promise<NextResponse> {
   const { session, response } = await requireAuth();
   if (!session) return response;
+
+  const limited = rateLimitResponse(
+    `ai-tools:${session.user.id}`,
+    AI_TOOL_LIMIT_PER_USER,
+    AI_TOOL_WINDOW_MS,
+  );
+  if (limited) return limited;
 
   const { id } = await context.params;
 
