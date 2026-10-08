@@ -82,6 +82,7 @@ export async function chatJson<T>(options: ChatJsonOptions<T>): Promise<AiResult
       body: JSON.stringify({
         model,
         temperature: 0.2,
+        max_tokens: 768,
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: options.system },
@@ -208,6 +209,7 @@ export async function chatStream(options: ChatStreamOptions): Promise<ChatStream
       body: JSON.stringify({
         model,
         temperature: 0.3,
+        max_tokens: 768,
         stream: true,
         messages: [
           { role: 'system', content: options.system },

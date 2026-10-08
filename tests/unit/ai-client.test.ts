@@ -38,8 +38,9 @@ describe('chatJson base URL', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const call = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(call[0]).toBe('https://groq.example/v1/chat/completions');
-    const payload = JSON.parse(String(call[1].body)) as { model: string };
+    const payload = JSON.parse(String(call[1].body)) as { model: string; max_tokens: number };
     expect(payload.model).toBe('test-model');
+    expect(payload.max_tokens).toBe(768);
   });
 
   it('falls back to the default OpenAI URL when OPENAI_BASE_URL is unset', async () => {
