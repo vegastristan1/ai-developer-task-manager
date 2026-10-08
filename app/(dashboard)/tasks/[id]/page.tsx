@@ -160,7 +160,21 @@ export default async function TaskDetailsPage({ params }: TaskPageProps) {
                   </Link>
                 }
               />
-              {task.sprint && <DetailRow label="Sprint" value={task.sprint.name} />}
+              <DetailRow
+                label="Sprint"
+                value={
+                  task.sprint ? (
+                    <Link
+                      href={`/sprints/${task.sprint.id}`}
+                      className="hover:text-primary underline-offset-4 hover:underline"
+                    >
+                      {task.sprint.name}
+                    </Link>
+                  ) : (
+                    'Backlog'
+                  )
+                }
+              />
               <DetailRow
                 label="Due date"
                 value={task.dueDate ? formatDate(task.dueDate) : 'None'}

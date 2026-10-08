@@ -18,7 +18,10 @@ export type TaskDetails = Task & {
 
 export type TaskMutationResult =
   | { ok: true; task: TaskDetails }
-  | { ok: false; reason: 'project-not-found' | 'task-not-found' | 'label-not-found' };
+  | {
+      ok: false;
+      reason: 'project-not-found' | 'task-not-found' | 'label-not-found' | 'sprint-not-found';
+    };
 
 export interface TaskFilters {
   projectId?: string;
@@ -108,6 +111,14 @@ async function validateLabelIds(labelIds: string[], projectId: string): Promise<
   return count === labelIds.length;
 }
 
+async function sprintInProject(sprintId: string, projectId: string): Promise<boolean> {
+  const sprint = await prisma.sprint.findFirst({
+    where: { id: sprintId, projectId },
+    select: { id: true },
+  });
+  return !!sprint;
+}
+
 async function nextPosition(projectId: string): Promise<number> {
   const last = await prisma.task.findFirst({
     where: { projectId },
@@ -129,6 +140,10 @@ export async function createTask(userId: string, input: TaskInput): Promise<Task
     return { ok: false, reason: 'label-not-found' };
   }
 
+  if (input.sprintId && !(await sprintInProject(input.sprintId, input.projectId))) {
+    return { ok: false, reason: 'sprint-not-found' };
+  }
+
   const task = await prisma.task.create({
     data: {
       title: input.title,
@@ -145,6 +160,7 @@ export async function createTask(userId: string, input: TaskInput): Promise<Task
       acceptanceCriteria: input.acceptanceCriteria ?? Prisma.JsonNull,
       position: await nextPosition(input.projectId),
       project: { connect: { id: input.projectId } },
+      ...(input.sprintId && { sprint: { connect: { id: input.sprintId } } }),
       labels: { create: labelIds.map((labelId) => ({ labelId })) },
     },
     include: detailsInclude,
@@ -179,6 +195,10 @@ export async function updateTask(
     return { ok: false, reason: 'label-not-found' };
   }
 
+  if (input.sprintId && !(await sprintInProject(input.sprintId, targetProjectId))) {
+    return { ok: false, reason: 'sprint-not-found' };
+  }
+
   const task = await prisma.task.update({
     where: { id },
     data: {
@@ -206,6 +226,9 @@ export async function updateTask(
           deleteMany: {},
           create: input.labelIds.map((labelId) => ({ labelId })),
         },
+      }),
+      ...(input.sprintId !== undefined && {
+        sprint: input.sprintId ? { connect: { id: input.sprintId } } : { disconnect: true },
       }),
     },
     include: detailsInclude,

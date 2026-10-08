@@ -60,10 +60,14 @@ export async function POST(request: NextRequest) {
   const result = await createTask(session.user.id, parsed.data);
 
   if (!result.ok) {
-    const status = result.reason === 'project-not-found' ? 404 : 422;
+    if (result.reason === 'project-not-found') {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
     const error =
-      result.reason === 'project-not-found' ? 'Project not found' : 'Label not found in project';
-    return NextResponse.json({ error }, { status });
+      result.reason === 'sprint-not-found'
+        ? 'Sprint not found in this project'
+        : 'Label not found in project';
+    return NextResponse.json({ error }, { status: 422 });
   }
 
   return NextResponse.json({ task: result.task }, { status: 201 });

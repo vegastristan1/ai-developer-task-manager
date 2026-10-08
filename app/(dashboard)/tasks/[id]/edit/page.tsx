@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/common/page-header';
 import { TaskForm } from '@/components/tasks/task-form';
 import { getSessionUser } from '@/lib/auth/session';
 import { listLabels } from '@/services/labels';
+import { listSprints } from '@/services/sprints';
 import { getTask } from '@/services/tasks';
 
 export const metadata: Metadata = { title: 'Edit task' };
@@ -32,6 +33,7 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
   }
 
   const labels = (await listLabels(user.id, task.projectId)) ?? [];
+  const sprints = await listSprints(user.id, { projectId: task.projectId });
   const criteria = Array.isArray(task.acceptanceCriteria)
     ? task.acceptanceCriteria.filter((item): item is string => typeof item === 'string')
     : [];
@@ -46,6 +48,7 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
           name: label.name,
           color: label.color,
         }))}
+        sprints={sprints.map((sprint) => ({ id: sprint.id, name: sprint.name }))}
         initial={{
           id: task.id,
           title: task.title,
@@ -62,6 +65,7 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
           technicalNotes: task.technicalNotes,
           acceptanceCriteria: criteria,
           labelIds: task.labels.map(({ label }) => label.id),
+          sprintId: task.sprintId,
         }}
       />
     </>

@@ -120,6 +120,7 @@ export const taskSchema = z.object({
     .optional()
     .transform((value) => (value === undefined ? undefined : value.length ? value : null)),
   labelIds: z.array(z.string().trim().min(1)).max(20).optional(),
+  sprintId: z.string().trim().min(1).nullable().optional(),
 });
 
 export const updateTaskSchema = taskSchema.partial().extend({

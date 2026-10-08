@@ -49,6 +49,11 @@ interface LabelOption {
   color: string;
 }
 
+interface SprintOption {
+  id: string;
+  name: string;
+}
+
 interface TaskFormInitial {
   id: string;
   title: string;
@@ -65,6 +70,7 @@ interface TaskFormInitial {
   technicalNotes: string | null;
   acceptanceCriteria: string[];
   labelIds: string[];
+  sprintId: string | null;
 }
 
 interface TaskFormProps {
@@ -72,6 +78,7 @@ interface TaskFormProps {
   initial?: TaskFormInitial;
   projects?: ProjectOption[];
   labels?: LabelOption[];
+  sprints?: SprintOption[];
 }
 
 interface ApiIssue {
@@ -115,7 +122,7 @@ function FormSelect({
   );
 }
 
-export function TaskForm({ mode, initial, projects, labels }: TaskFormProps) {
+export function TaskForm({ mode, initial, projects, labels, sprints }: TaskFormProps) {
   const router = useRouter();
   const [title, setTitle] = useState(initial?.title ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
@@ -125,6 +132,7 @@ export function TaskForm({ mode, initial, projects, labels }: TaskFormProps) {
   const [type, setType] = useState<TaskTypeValue>(initial?.type ?? 'FEATURE');
   const [technicalArea, setTechnicalArea] = useState<string>(initial?.technicalArea ?? NONE);
   const [complexity, setComplexity] = useState<string>(initial?.complexity ?? NONE);
+  const [sprintId, setSprintId] = useState<string>(initial?.sprintId ?? NONE);
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? '');
   const [estimatedEffort, setEstimatedEffort] = useState(initial?.estimatedEffort ?? '');
   const [actualEffort, setActualEffort] = useState(initial?.actualEffort ?? '');
@@ -132,12 +140,14 @@ export function TaskForm({ mode, initial, projects, labels }: TaskFormProps) {
   const [criteria, setCriteria] = useState<string[]>(initial?.acceptanceCriteria ?? []);
   const [criteriaDraft, setCriteriaDraft] = useState('');
   const [allLabels, setAllLabels] = useState<LabelOption[]>(labels ?? []);
+  const [sprintOptions, setSprintOptions] = useState<SprintOption[]>(sprints ?? []);
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>(initial?.labelIds ?? []);
   const [labelSelectValue, setLabelSelectValue] = useState('');
   const [showNewLabel, setShowNewLabel] = useState(false);
   const [newLabelName, setNewLabelName] = useState('');
   const [newLabelColor, setNewLabelColor] = useState<string>(labelColors[5]);
   const [isLoadingLabels, setIsLoadingLabels] = useState(false);
+  const [isLoadingSprints, setIsLoadingSprints] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -148,21 +158,31 @@ export function TaskForm({ mode, initial, projects, labels }: TaskFormProps) {
     setProjectId(value);
     setSelectedLabelIds([]);
     setLabelSelectValue('');
+    setSprintId(NONE);
 
     if (!value) {
       setAllLabels([]);
+      setSprintOptions([]);
       return;
     }
 
     setIsLoadingLabels(true);
+    setIsLoadingSprints(true);
     try {
-      const response = await fetch(`/api/labels?projectId=${encodeURIComponent(value)}`);
-      const data = await response.json().catch(() => null);
-      setAllLabels(response.ok ? (data?.labels ?? []) : []);
+      const [labelsResponse, sprintsResponse] = await Promise.all([
+        fetch(`/api/labels?projectId=${encodeURIComponent(value)}`),
+        fetch(`/api/sprints?projectId=${encodeURIComponent(value)}`),
+      ]);
+      const labelsData = await labelsResponse.json().catch(() => null);
+      const sprintsData = await sprintsResponse.json().catch(() => null);
+      setAllLabels(labelsResponse.ok ? (labelsData?.labels ?? []) : []);
+      setSprintOptions(sprintsResponse.ok ? (sprintsData?.sprints ?? []) : []);
     } catch {
       setAllLabels([]);
+      setSprintOptions([]);
     } finally {
       setIsLoadingLabels(false);
+      setIsLoadingSprints(false);
     }
   }
 
@@ -252,6 +272,7 @@ export function TaskForm({ mode, initial, projects, labels }: TaskFormProps) {
           technicalNotes,
           acceptanceCriteria: criteria,
           labelIds: selectedLabelIds,
+          sprintId: sprintId === NONE ? null : sprintId,
         }),
       });
 
@@ -451,6 +472,22 @@ export function TaskForm({ mode, initial, projects, labels }: TaskFormProps) {
                   aria-invalid={!!errors.dueDate}
                 />
                 {errors.dueDate && <p className="text-destructive text-sm">{errors.dueDate}</p>}
+              </div>
+
+              <div className="grid gap-2">
+                <span className="text-sm font-medium">Sprint</span>
+                <FormSelect
+                  value={sprintId}
+                  onValueChange={setSprintId}
+                  placeholder="Sprint"
+                  ariaLabel="Sprint"
+                  disabled={isLoadingSprints}
+                  options={[
+                    { value: NONE, label: 'Backlog (no sprint)' },
+                    ...sprintOptions.map((sprint) => ({ value: sprint.id, label: sprint.name })),
+                  ]}
+                />
+                {errors.sprintId && <p className="text-destructive text-sm">{errors.sprintId}</p>}
               </div>
             </div>
           </div>
