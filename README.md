@@ -83,16 +83,45 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command              | Description              |
-| -------------------- | ------------------------ |
-| `npm run dev`        | Start development server |
-| `npm run build`      | Production build         |
-| `npm run lint`       | Run ESLint               |
-| `npm run format`     | Format with Prettier     |
-| `npm run db:migrate` | Run Prisma migrations    |
-| `npm run db:seed`    | Seed demo data           |
-| `npm run db:studio`  | Open Prisma Studio       |
-| `npm run smoke`      | Run smoke tests          |
+| Command                | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| `npm run dev`          | Start development server                                |
+| `npm run build`        | Production build                                        |
+| `npm run lint`         | Run ESLint                                              |
+| `npm run typecheck`    | TypeScript type check (`tsc --noEmit`)                  |
+| `npm run format`       | Format with Prettier                                    |
+| `npm run verify`       | Format + lint + typecheck + full test suite (CI parity) |
+| `npm run verify:quick` | Format + lint + typecheck (+ unit tests if built)       |
+| `npm run doctor`       | Check env vars, AUTH_SECRET, database, Prisma setup     |
+| `npm run qa`           | Build → smoke test → keep server up for manual QA       |
+| `npm run smoke`        | Run smoke tests                                         |
+| `npm run db:migrate`   | Run Prisma migrations                                   |
+| `npm run db:seed`      | Seed demo data                                          |
+| `npm run db:seed:qa`   | Add idempotent QA edge-case data for the demo user      |
+| `npm run db:reset`     | ⚠️ Destroy and recreate the database (destructive)      |
+| `npm run db:studio`    | Open Prisma Studio                                      |
+
+## Development Workflow
+
+```bash
+npm run doctor        # is my environment healthy?
+npm run verify:quick  # fast local checks (format, lint, types)
+npm run verify        # full CI parity (adds unit + API + E2E tests)
+npm run qa            # build + smoke, then keep :4300 up for manual QA
+```
+
+- **`doctor`** validates `.env.local`, required variables from `.env.example`, the
+  32-character `AUTH_SECRET` rule, database connectivity, applied migrations, and the
+  generated Prisma client. Use `--env <path>` to check another env file.
+- **`verify`** runs the same gates as CI in order, stopping at the first failure;
+  `verify:quick` skips tests (unit tests run too when a production build exists).
+- **`qa`** ensures a production build, starts it on port 4300 (`--port` to change),
+  runs the smoke test, then leaves the server running for click-through QA —
+  Ctrl+C stops it. `--fresh` forces a rebuild; `--exit-after-smoke` quits after smoke.
+- **`db:seed:qa`** attaches edge cases to the demo user (overdue/due-soon tasks,
+  blocked dependency chain, long content, full-detail critical bug, active sprint,
+  empty project). Safe to re-run — existing rows are skipped. Run `npm run db:seed`
+  first if the demo user doesn't exist yet.
 
 ## Smoke Test
 
@@ -110,6 +139,13 @@ npm run smoke -- --no-browser
 ```
 
 Copy `scripts/smoke.mjs` and `smoke.config.json` into another project to reuse it — no install needed.
+
+### Scheduled production smoke
+
+`.github/workflows/smoke-prod.yml` runs the same smoke test against your deployed app
+daily at 06:00 UTC (and on demand via **Run workflow**). It is skipped until you set the
+`SMOKE_BASE_URL` repository variable under **Settings → Secrets and variables → Actions →
+Variables**, e.g. `https://your-app.vercel.app`.
 
 ## License
 
