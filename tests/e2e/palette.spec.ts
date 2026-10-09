@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test';
-import { loginViaUi } from './helpers';
+import { loginViaUi, openCommandPalette } from './helpers';
 
 test.describe('command palette', () => {
   test('opens with Ctrl+K and navigates via keyboard', async ({ page }) => {
     await loginViaUi(page);
     await page.goto('/dashboard');
 
-    await page.keyboard.press('Control+k');
+    await openCommandPalette(page);
     const input = page.getByRole('textbox', { name: 'Command palette search' });
     await expect(input).toBeVisible();
 
@@ -26,7 +26,7 @@ test.describe('command palette', () => {
     await loginViaUi(page);
     await page.goto('/dashboard');
 
-    await page.keyboard.press('/');
+    await openCommandPalette(page, '/');
     await expect(page.getByRole('textbox', { name: 'Command palette search' })).toBeVisible();
 
     await page.keyboard.press('Escape');
@@ -37,7 +37,7 @@ test.describe('command palette', () => {
     await loginViaUi(page);
     await page.goto('/dashboard');
 
-    await page.keyboard.press('Control+k');
+    await openCommandPalette(page);
     const input = page.getByRole('textbox', { name: 'Command palette search' });
     await input.fill('New task');
     await expect(page.getByRole('option', { name: /New task/ })).toBeVisible();

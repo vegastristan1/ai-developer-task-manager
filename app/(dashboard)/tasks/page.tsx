@@ -8,7 +8,13 @@ import { TaskFilters } from '@/components/tasks/task-filters';
 import { TaskListItem } from '@/components/tasks/task-list-item';
 import { Button } from '@/components/ui/button';
 import { getSessionUser } from '@/lib/auth/session';
-import { taskPriorities, taskSorts, taskStatuses, taskTypes, technicalAreas } from '@/lib/validations/task';
+import {
+  taskPriorities,
+  taskSorts,
+  taskStatuses,
+  taskTypes,
+  technicalAreas,
+} from '@/lib/validations/task';
 import { listProjects } from '@/services/projects';
 import { listSprints } from '@/services/sprints';
 import { listTasks } from '@/services/tasks';

@@ -1,10 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/session';
-import {
-  createDependencySchema,
-  dependencyReasonMessages,
-} from '@/lib/validations/dependency';
+import { createDependencySchema, dependencyReasonMessages } from '@/lib/validations/dependency';
 import { addDependency } from '@/services/dependencies';
 
 type RouteContext = { params: Promise<{ id: string }> };

@@ -116,9 +116,7 @@ export default async function SprintDetailsPage({ params }: SprintPageProps) {
             <CardContent className="grid gap-4">
               <DetailRow
                 label="Status"
-                value={
-                  <SprintStatusBadge startDate={sprint.startDate} endDate={sprint.endDate} />
-                }
+                value={<SprintStatusBadge startDate={sprint.startDate} endDate={sprint.endDate} />}
               />
               <Separator />
               <DetailRow

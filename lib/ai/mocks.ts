@@ -16,31 +16,31 @@ export function mockBreakdown(ctx: AiTaskContext): BreakdownResult {
   const title = base(ctx.title);
   const existing = new Set(ctx.subtasks.map((subtask) => normalizeTitle(subtask)));
   const suggestions: BreakdownResult['subtasks'] = [
-      {
-        title: `Clarify requirements and scope for ${title}`,
-        description: 'Document edge cases, inputs, outputs and acceptance boundaries before coding.',
-        priority: 'HIGH',
-        type: 'DOCUMENTATION',
-      },
-      {
-        title: `Implement core logic for ${title}`,
-        description: 'Build the primary code path with validation and error handling.',
-        priority: 'HIGH',
-        type: 'FEATURE',
-      },
-      {
-        title: `Add automated tests for ${title}`,
-        description: 'Cover happy path, validation failures and edge cases.',
-        priority: 'MEDIUM',
-        type: 'TESTING',
-      },
-      {
-        title: `Review and document ${title}`,
-        description: 'Self-review the diff, update technical notes and verify acceptance criteria.',
-        priority: 'MEDIUM',
-        type: 'REFACTOR',
-      },
-    ];
+    {
+      title: `Clarify requirements and scope for ${title}`,
+      description: 'Document edge cases, inputs, outputs and acceptance boundaries before coding.',
+      priority: 'HIGH',
+      type: 'DOCUMENTATION',
+    },
+    {
+      title: `Implement core logic for ${title}`,
+      description: 'Build the primary code path with validation and error handling.',
+      priority: 'HIGH',
+      type: 'FEATURE',
+    },
+    {
+      title: `Add automated tests for ${title}`,
+      description: 'Cover happy path, validation failures and edge cases.',
+      priority: 'MEDIUM',
+      type: 'TESTING',
+    },
+    {
+      title: `Review and document ${title}`,
+      description: 'Self-review the diff, update technical notes and verify acceptance criteria.',
+      priority: 'MEDIUM',
+      type: 'REFACTOR',
+    },
+  ];
 
   return {
     subtasks: suggestions.filter((suggestion) => !existing.has(normalizeTitle(suggestion.title))),
@@ -122,13 +122,15 @@ export function mockReview(ctx: AiTaskContext): ReviewResult {
         category: 'security',
         severity: 'warning',
         message: `${title} must verify ownership before returning or mutating data.`,
-        recommendation: 'Scope every query by the authenticated user and return 404 for foreign records.',
+        recommendation:
+          'Scope every query by the authenticated user and return 404 for foreign records.',
       },
       {
         category: 'architecture',
         severity: 'info',
         message: 'Logic should live in the service layer, not inside route handlers.',
-        recommendation: 'Keep the route handler to auth, parsing, service call and response mapping.',
+        recommendation:
+          'Keep the route handler to auth, parsing, service call and response mapping.',
       },
       {
         category: 'edge-case',

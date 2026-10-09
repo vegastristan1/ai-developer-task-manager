@@ -1,7 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { ClipboardList, ListChecks, ListTree, Loader2, ShieldCheck, Sparkles, Timer } from 'lucide-react';
+import {
+  ClipboardList,
+  ListChecks,
+  ListTree,
+  Loader2,
+  ShieldCheck,
+  Sparkles,
+  Timer,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { AiActionDialog, type AiActionResult } from '@/components/ai/ai-action-dialog';
 import { Button } from '@/components/ui/button';

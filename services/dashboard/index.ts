@@ -167,7 +167,8 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
       status: project.status,
       taskCount: counts.total,
       completedCount: counts.completed,
-      completionPercent: counts.total === 0 ? 0 : Math.round((counts.completed / counts.total) * 100),
+      completionPercent:
+        counts.total === 0 ? 0 : Math.round((counts.completed / counts.total) * 100),
     };
   });
 

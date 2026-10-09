@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export type JsonBodyResult<T> =
-  | { ok: true; body: T }
-  | { ok: false; response: NextResponse };
+export type JsonBodyResult<T> = { ok: true; body: T } | { ok: false; response: NextResponse };
 
 function payloadTooLarge(maxBytes: number): NextResponse {
   return NextResponse.json({ error: 'Payload too large', maxBytes }, { status: 413 });

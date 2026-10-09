@@ -1,10 +1,5 @@
 import { z } from 'zod';
-import {
-  taskPriorities,
-  taskStatuses,
-  taskTypes,
-  technicalAreas,
-} from '@/lib/validations/task';
+import { taskPriorities, taskStatuses, taskTypes, technicalAreas } from '@/lib/validations/task';
 
 export const searchQuerySchema = z.object({
   q: z.string().trim().min(1, 'Search query is required').max(200, 'Query is too long'),

@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ensureUser,
-  loginClient,
-  PASSWORD,
-  TEST_BASE_URL,
-  uniqueName,
-} from '../helpers/api';
+import { ensureUser, loginClient, PASSWORD, TEST_BASE_URL, uniqueName } from '../helpers/api';
 
 async function loginAttempt(email: string, password: string, ip: string): Promise<Response> {
   const csrfResponse = await fetch(`${TEST_BASE_URL}/api/auth/csrf`);
@@ -35,9 +29,7 @@ describe('security controls', () => {
     expect(page.headers.get('x-content-type-options')).toBe('nosniff');
     expect(page.headers.get('x-frame-options')).toBe('DENY');
     expect(page.headers.get('referrer-policy')).toBe('strict-origin-when-cross-origin');
-    expect(page.headers.get('permissions-policy')).toBe(
-      'camera=(), microphone=(), geolocation=()',
-    );
+    expect(page.headers.get('permissions-policy')).toBe('camera=(), microphone=(), geolocation=()');
     expect(page.headers.get('cross-origin-opener-policy')).toBe('same-origin');
     expect(page.headers.get('cross-origin-resource-policy')).toBe('same-origin');
     expect(page.headers.get('strict-transport-security')).toContain('max-age=63072000');

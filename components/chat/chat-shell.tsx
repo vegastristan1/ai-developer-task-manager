@@ -31,12 +31,7 @@ function appendLast(messages: UiMessage[], chunk: string): UiMessage[] {
   return copy;
 }
 
-export function ChatShell({
-  conversations,
-  projects,
-  active,
-  initialProjectId,
-}: ChatShellProps) {
+export function ChatShell({ conversations, projects, active, initialProjectId }: ChatShellProps) {
   const router = useRouter();
   const activeId = active?.id ?? null;
 

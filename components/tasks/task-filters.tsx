@@ -176,7 +176,10 @@ export function TaskFilters({
       </Select>
 
       {sprints && sprints.length > 0 && (
-        <Select value={initial.sprintId ?? ALL} onValueChange={(value) => apply({ sprintId: value })}>
+        <Select
+          value={initial.sprintId ?? ALL}
+          onValueChange={(value) => apply({ sprintId: value })}
+        >
           <SelectTrigger className="w-44" aria-label="Filter by sprint">
             <SelectValue placeholder="All sprints" />
           </SelectTrigger>

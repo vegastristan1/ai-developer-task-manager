@@ -20,13 +20,7 @@ interface DependenciesCardProps {
   candidates: DependencyCandidate[];
 }
 
-function DependencyRow({
-  ownerTaskId,
-  task,
-}: {
-  ownerTaskId: string;
-  task: DependencyTask;
-}) {
+function DependencyRow({ ownerTaskId, task }: { ownerTaskId: string; task: DependencyTask }) {
   return (
     <li className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
       <TaskStatusBadge status={task.status} />

@@ -38,7 +38,7 @@ export function DistributionCard({ title, description, data, total }: Distributi
                     style={{ width: `${percent}%` }}
                   />
                 </div>
-                <span className="w-16 shrink-0 text-right text-xs whitespace-nowrap text-muted-foreground tabular-nums">
+                <span className="text-muted-foreground w-16 shrink-0 text-right text-xs whitespace-nowrap tabular-nums">
                   {datum.count} ({percent}%)
                 </span>
               </div>

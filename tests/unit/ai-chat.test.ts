@@ -14,7 +14,11 @@ const boundContext: ChatContext = {
   blockedCount: 1,
   projectList: [],
   sprints: [
-    { name: 'Sprint A', startDate: new Date('2026-01-01T00:00:00Z'), endDate: new Date('2026-01-15T00:00:00Z') },
+    {
+      name: 'Sprint A',
+      startDate: new Date('2026-01-01T00:00:00Z'),
+      endDate: new Date('2026-01-15T00:00:00Z'),
+    },
   ],
 };
 
@@ -36,7 +40,7 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('Bound project: Demo Project');
     expect(prompt).toContain('- t1 | First task | TODO | MEDIUM | FEATURE');
     expect(prompt).toContain('Sprint A');
-    expect(prompt).toContain('Today\'s date');
+    expect(prompt).toContain("Today's date");
     expect(prompt).toContain('```ai-action');
   });
 

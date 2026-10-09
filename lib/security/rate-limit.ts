@@ -8,11 +8,7 @@ const MAX_TRACKED_KEYS = 10_000;
 
 const buckets = new Map<string, number[]>();
 
-export function checkRateLimit(
-  key: string,
-  limit: number,
-  windowMs: number,
-): RateLimitResult {
+export function checkRateLimit(key: string, limit: number, windowMs: number): RateLimitResult {
   const now = Date.now();
   const cutoff = now - windowMs;
   const hits = (buckets.get(key) ?? []).filter((time) => time > cutoff);

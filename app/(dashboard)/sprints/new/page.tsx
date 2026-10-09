@@ -23,10 +23,7 @@ export default async function NewSprintPage() {
 
   return (
     <>
-      <PageHeader
-        title="New sprint"
-        description="Define a timebox with a goal for your project."
-      />
+      <PageHeader title="New sprint" description="Define a timebox with a goal for your project." />
       {projects.length === 0 ? (
         <EmptyState
           icon={<FolderKanban />}

@@ -29,18 +29,18 @@ describe('taskSchema', () => {
   });
 
   it('rejects unknown enum values', () => {
-    expect(
-      taskSchema.safeParse({ title: 'x', projectId: 'p', status: 'NOPE' }).success,
-    ).toBe(false);
-    expect(
-      taskSchema.safeParse({ title: 'x', projectId: 'p', priority: 'URGENT' }).success,
-    ).toBe(false);
+    expect(taskSchema.safeParse({ title: 'x', projectId: 'p', status: 'NOPE' }).success).toBe(
+      false,
+    );
+    expect(taskSchema.safeParse({ title: 'x', projectId: 'p', priority: 'URGENT' }).success).toBe(
+      false,
+    );
   });
 
   it('rejects malformed due dates', () => {
-    expect(
-      taskSchema.safeParse({ title: 'x', projectId: 'p', dueDate: 'March 5' }).success,
-    ).toBe(false);
+    expect(taskSchema.safeParse({ title: 'x', projectId: 'p', dueDate: 'March 5' }).success).toBe(
+      false,
+    );
   });
 
   it('converts an empty acceptance criteria array to null', () => {

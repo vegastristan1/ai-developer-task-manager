@@ -115,10 +115,7 @@ export function AddDependencyDialog({ taskId, candidates }: AddDependencyDialogP
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isAdding}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleAdd}
-            disabled={isAdding || selectedIds.length === 0}
-          >
+          <AlertDialogAction onClick={handleAdd} disabled={isAdding || selectedIds.length === 0}>
             {isAdding && <Loader2 className="animate-spin" />}
             Add {selectedIds.length > 0 ? `${selectedIds.length} ` : ''}
             dependenc{selectedIds.length === 1 ? 'y' : 'ies'}

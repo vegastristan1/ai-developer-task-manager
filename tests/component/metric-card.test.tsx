@@ -6,7 +6,14 @@ import { DistributionCard, type DistributionDatum } from '@/components/dashboard
 
 describe('MetricCard', () => {
   it('renders label, value, and hint', () => {
-    render(<MetricCard label="Open tasks" value={42} hint="across 3 projects" icon={<span data-testid="icon" />} />);
+    render(
+      <MetricCard
+        label="Open tasks"
+        value={42}
+        hint="across 3 projects"
+        icon={<span data-testid="icon" />}
+      />,
+    );
     expect(screen.getByText('Open tasks')).toBeTruthy();
     expect(screen.getByText('42')).toBeTruthy();
     expect(screen.getByText('across 3 projects')).toBeTruthy();

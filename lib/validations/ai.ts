@@ -17,10 +17,7 @@ export const breakdownSchema = z.object({
 
 export const planSectionSchema = z.object({
   title: z.string().trim().min(1).max(80),
-  items: z
-    .array(z.string().trim().min(1).max(300))
-    .min(1)
-    .max(10),
+  items: z.array(z.string().trim().min(1).max(300)).min(1).max(10),
 });
 
 export const planSchema = z.object({

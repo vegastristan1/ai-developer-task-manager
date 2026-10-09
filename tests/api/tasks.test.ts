@@ -99,11 +99,15 @@ describe('tasks API', () => {
 
     await client.put(`/api/tasks/${b.json.task.id}`, { status: 'DONE' });
 
-    const byArea = await client.get(`/api/tasks?projectId=${projectId}&technicalArea=API&q=${token}`);
+    const byArea = await client.get(
+      `/api/tasks?projectId=${projectId}&technicalArea=API&q=${token}`,
+    );
     expect(byArea.status).toBe(200);
     expect(byArea.json.tasks.map((task: any) => task.title)).toEqual([`${token} alpha`]);
 
-    const byPriority = await client.get(`/api/tasks?projectId=${projectId}&priority=HIGH&q=${token}`);
+    const byPriority = await client.get(
+      `/api/tasks?projectId=${projectId}&priority=HIGH&q=${token}`,
+    );
     expect(byPriority.json.tasks.map((task: any) => task.id)).toEqual([a.json.task.id]);
 
     const byStatus = await client.get(`/api/tasks?projectId=${projectId}&status=DONE&q=${token}`);
@@ -168,7 +172,9 @@ describe('tasks API', () => {
     const bulkTitles = list.json.tasks.map((task: any) => task.title);
     expect(bulkTitles).toContain(`Bulk Dup ${runId}`);
     expect(bulkTitles).toContain(`Bulk unique ${runId}`);
-    expect(bulkTitles.filter((title: string) => title.toLowerCase().includes('bulk dup'))).toHaveLength(1);
+    expect(
+      bulkTitles.filter((title: string) => title.toLowerCase().includes('bulk dup')),
+    ).toHaveLength(1);
 
     for (const task of list.json.tasks) {
       await client.delete(`/api/tasks/${task.id}`);

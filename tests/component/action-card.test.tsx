@@ -17,7 +17,13 @@ const statusAction: ChatAction = {
 describe('ActionCard', () => {
   it('renders a proposed create_task action', () => {
     render(
-      <ActionCard action={createAction} canApprove isApproving={false} onApprove={vi.fn()} onDismiss={vi.fn()} />,
+      <ActionCard
+        action={createAction}
+        canApprove
+        isApproving={false}
+        onApprove={vi.fn()}
+        onDismiss={vi.fn()}
+      />,
     );
     expect(screen.getByText('Proposed action')).toBeTruthy();
     expect(screen.getByText('Add rate limiting')).toBeTruthy();
@@ -29,7 +35,13 @@ describe('ActionCard', () => {
 
   it('renders a set_task_status action with its target status', () => {
     render(
-      <ActionCard action={statusAction} canApprove isApproving={false} onApprove={vi.fn()} onDismiss={vi.fn()} />,
+      <ActionCard
+        action={statusAction}
+        canApprove
+        isApproving={false}
+        onApprove={vi.fn()}
+        onDismiss={vi.fn()}
+      />,
     );
     expect(screen.getByText('First task')).toBeTruthy();
     expect(screen.getByText(/Done/)).toBeTruthy();
@@ -39,7 +51,13 @@ describe('ActionCard', () => {
     const onApprove = vi.fn();
     const onDismiss = vi.fn();
     render(
-      <ActionCard action={createAction} canApprove isApproving={false} onApprove={onApprove} onDismiss={onDismiss} />,
+      <ActionCard
+        action={createAction}
+        canApprove
+        isApproving={false}
+        onApprove={onApprove}
+        onDismiss={onDismiss}
+      />,
     );
     fireEvent.click(screen.getByText('Approve'));
     expect(onApprove).toHaveBeenCalledTimes(1);
@@ -58,14 +76,26 @@ describe('ActionCard', () => {
       />,
     );
     expect(screen.getByText(/Bind a project to this chat/)).toBeTruthy();
-    expect((screen.getByText('Approve').closest('button') as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByText('Approve').closest('button') as HTMLButtonElement).disabled).toBe(
+      true,
+    );
   });
 
   it('disables both buttons while approving', () => {
     render(
-      <ActionCard action={createAction} canApprove isApproving onApprove={vi.fn()} onDismiss={vi.fn()} />,
+      <ActionCard
+        action={createAction}
+        canApprove
+        isApproving
+        onApprove={vi.fn()}
+        onDismiss={vi.fn()}
+      />,
     );
-    expect((screen.getByText('Approve').closest('button') as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByText('Dismiss').closest('button') as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByText('Approve').closest('button') as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByText('Dismiss').closest('button') as HTMLButtonElement).disabled).toBe(
+      true,
+    );
   });
 });

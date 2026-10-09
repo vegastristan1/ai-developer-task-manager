@@ -38,7 +38,7 @@ describe('AI task tools API', () => {
     expect((await anon.post(`/api/ai/tasks/${taskId}/plan`, {})).status).toBe(401);
   });
 
-  it('returns 404 for another user\'s task', async () => {
+  it("returns 404 for another user's task", async () => {
     const other = await loginClient('vitest-other@example.com');
     const response = await other.post(`/api/ai/tasks/${taskId}/breakdown`, {});
     expect(response.status).toBe(404);

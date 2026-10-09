@@ -82,11 +82,7 @@ describe('authorization boundaries', () => {
       ['GET', `/api/ai/conversations/${conversationId}`, undefined],
       ['DELETE', `/api/ai/conversations/${conversationId}`, undefined],
       ['POST', `/api/tasks/${taskId}/dependencies`, { dependsOnId: secondTaskId }],
-      [
-        'DELETE',
-        `/api/tasks/${taskId}/dependencies/${dependencyId}`,
-        undefined,
-      ],
+      ['DELETE', `/api/tasks/${taskId}/dependencies/${dependencyId}`, undefined],
     ];
 
     for (const [method, path, body] of cases) {

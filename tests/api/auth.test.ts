@@ -34,12 +34,17 @@ describe('auth API', () => {
   it('rejects invalid registration payloads', async () => {
     const client = new ApiClient();
     expect(
-      (await client.post('/api/auth/register', { name: 'X', email: 'bad-email', password: PASSWORD }))
-        .status,
+      (
+        await client.post('/api/auth/register', {
+          name: 'X',
+          email: 'bad-email',
+          password: PASSWORD,
+        })
+      ).status,
     ).toBe(422);
-    expect(
-      (await client.post('/api/auth/register', { name: 'X', email: 'a@b.co' })).status,
-    ).toBe(422);
+    expect((await client.post('/api/auth/register', { name: 'X', email: 'a@b.co' })).status).toBe(
+      422,
+    );
   });
 
   it('rejects a duplicate email with 409', async () => {

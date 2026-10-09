@@ -50,7 +50,7 @@ export function SprintProgressCard({ sprint }: { sprint: DashboardSprintStat | n
         <Progress value={sprint.progressPercent} />
         <dl className="grid grid-cols-4 gap-2 text-center">
           {cells.map((cell) => (
-            <div key={cell.label} className="rounded-lg bg-muted/50 py-2">
+            <div key={cell.label} className="bg-muted/50 rounded-lg py-2">
               <dd className="text-base font-semibold tabular-nums">{cell.value}</dd>
               <dt className="text-muted-foreground text-xs">{cell.label}</dt>
             </div>

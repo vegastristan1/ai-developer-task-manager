@@ -100,7 +100,10 @@ export async function chatJson<T>(options: ChatJsonOptions<T>): Promise<AiResult
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
-    throw new AiError('request-failed', `OpenAI responded with ${response.status}. ${detail.slice(0, 300)}`);
+    throw new AiError(
+      'request-failed',
+      `OpenAI responded with ${response.status}. ${detail.slice(0, 300)}`,
+    );
   }
 
   const payload = (await response.json().catch(() => null)) as {
@@ -211,10 +214,7 @@ export async function chatStream(options: ChatStreamOptions): Promise<ChatStream
         temperature: 0.3,
         max_tokens: 768,
         stream: true,
-        messages: [
-          { role: 'system', content: options.system },
-          ...options.messages,
-        ],
+        messages: [{ role: 'system', content: options.system }, ...options.messages],
       }),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });

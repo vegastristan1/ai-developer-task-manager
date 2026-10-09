@@ -67,10 +67,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
     if (result.reason === 'parent-not-found') {
-      return NextResponse.json(
-        { error: 'Parent task not found in this project' },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Parent task not found in this project' }, { status: 404 });
     }
     const error =
       result.reason === 'sprint-not-found'

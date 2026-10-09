@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 export const E2E_EMAIL = 'alex@example.com';
 export const E2E_PASSWORD = 'password123';
@@ -13,6 +13,18 @@ export async function loginViaUi(
   await page.fill('#password', password);
   await page.click('button[type="submit"]');
   await page.waitForURL('**/dashboard');
+}
+
+export async function openCommandPalette(page: Page, key = 'Control+k'): Promise<void> {
+  const input = page.getByRole('textbox', { name: 'Command palette search' });
+  // The global shortcut listener only mounts after hydration, so a key press
+  // right after navigation can be dropped. Retry until the dialog opens.
+  for (let attempt = 0; attempt < 10; attempt++) {
+    if (await input.isVisible()) return;
+    await page.keyboard.press(key);
+    await page.waitForTimeout(300);
+  }
+  await expect(input).toBeVisible();
 }
 
 export async function createProjectViaApi(page: Page, name: string): Promise<string> {

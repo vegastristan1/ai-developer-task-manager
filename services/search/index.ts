@@ -2,11 +2,7 @@ import { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import type { SearchQuery } from '@/lib/validations/search';
 import type { ProjectStatusValue } from '@/lib/validations/project';
-import type {
-  TaskPriorityValue,
-  TaskStatusValue,
-  TaskTypeValue,
-} from '@/lib/validations/task';
+import type { TaskPriorityValue, TaskStatusValue, TaskTypeValue } from '@/lib/validations/task';
 
 const RESULT_LIMITS = { projects: 10, tasks: 15, labels: 10 } as const;
 

@@ -67,23 +67,21 @@ describe('search API', () => {
   it('filters results by facets', async () => {
     const matching = await client.get(`/api/search?q=fuzzy&status=DONE&projectId=${projectId}`);
     expect(matching.status).toBe(200);
-    expect(
-      matching.json.results.tasks.every((task: any) => task.status === 'DONE'),
-    ).toBe(true);
+    expect(matching.json.results.tasks.every((task: any) => task.status === 'DONE')).toBe(true);
 
-    const wrongStatus = await client.get(`/api/search?q=fuzzy&status=BLOCKED&projectId=${projectId}`);
+    const wrongStatus = await client.get(
+      `/api/search?q=fuzzy&status=BLOCKED&projectId=${projectId}`,
+    );
     expect(wrongStatus.status).toBe(200);
     expect(wrongStatus.json.results.tasks).toHaveLength(0);
 
     // Facets (projectId, status, ...) narrow the task results only.
-    const wrongProject = await client.get(
-      `/api/search?q=${token}&projectId=does-not-exist`,
-    );
+    const wrongProject = await client.get(`/api/search?q=${token}&projectId=does-not-exist`);
     expect(wrongProject.status).toBe(200);
     expect(wrongProject.json.results.tasks).toHaveLength(0);
-    expect(
-      wrongProject.json.results.projects.some((entry: any) => entry.id === projectId),
-    ).toBe(true);
+    expect(wrongProject.json.results.projects.some((entry: any) => entry.id === projectId)).toBe(
+      true,
+    );
   });
 
   it('returns empty results for a query that matches nothing', async () => {

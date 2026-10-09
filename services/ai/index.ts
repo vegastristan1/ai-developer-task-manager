@@ -25,8 +25,7 @@ import {
 import { getTask, type TaskDetails } from '@/services/tasks';
 
 export type AiServiceResult<T> =
-  | { ok: true; data: T; source: AiSource; model: string }
-  | { ok: false; reason: 'task-not-found' };
+  { ok: true; data: T; source: AiSource; model: string } | { ok: false; reason: 'task-not-found' };
 
 function toStringList(value: unknown): string[] {
   return Array.isArray(value)
@@ -88,7 +87,10 @@ async function runAction<T>(
   return { ok: true, data: result.data, source: result.source, model: aiConfigured().model };
 }
 
-export function aiBreakdown(taskId: string, userId: string): Promise<AiServiceResult<BreakdownResult>> {
+export function aiBreakdown(
+  taskId: string,
+  userId: string,
+): Promise<AiServiceResult<BreakdownResult>> {
   return runAction(taskId, userId, breakdownPrompts, breakdownSchema, mockBreakdown);
 }
 
@@ -96,11 +98,17 @@ export function aiPlan(taskId: string, userId: string): Promise<AiServiceResult<
   return runAction(taskId, userId, planPrompts, planSchema, mockPlan);
 }
 
-export function aiCriteria(taskId: string, userId: string): Promise<AiServiceResult<CriteriaResult>> {
+export function aiCriteria(
+  taskId: string,
+  userId: string,
+): Promise<AiServiceResult<CriteriaResult>> {
   return runAction(taskId, userId, criteriaPrompts, criteriaSchema, mockCriteria);
 }
 
-export function aiEstimate(taskId: string, userId: string): Promise<AiServiceResult<EstimateResult>> {
+export function aiEstimate(
+  taskId: string,
+  userId: string,
+): Promise<AiServiceResult<EstimateResult>> {
   return runAction(taskId, userId, estimatePrompts, estimateSchema, mockEstimate);
 }
 

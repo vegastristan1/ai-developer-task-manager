@@ -28,8 +28,20 @@ interface CommandDef {
 }
 
 const commands: CommandDef[] = [
-  { id: 'nav-dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, group: 'Navigate' },
-  { id: 'nav-projects', label: 'Projects', href: '/projects', icon: FolderKanban, group: 'Navigate' },
+  {
+    id: 'nav-dashboard',
+    label: 'Dashboard',
+    href: '/dashboard',
+    icon: LayoutDashboard,
+    group: 'Navigate',
+  },
+  {
+    id: 'nav-projects',
+    label: 'Projects',
+    href: '/projects',
+    icon: FolderKanban,
+    group: 'Navigate',
+  },
   { id: 'nav-board', label: 'Board', href: '/board', icon: Columns3, group: 'Navigate' },
   { id: 'nav-tasks', label: 'Tasks', href: '/tasks', icon: ListTodo, group: 'Navigate' },
   { id: 'nav-sprints', label: 'Sprints', href: '/sprints', icon: Timer, group: 'Navigate' },
@@ -37,7 +49,13 @@ const commands: CommandDef[] = [
   { id: 'nav-chat', label: 'AI Chat', href: '/chat', icon: MessageSquare, group: 'Navigate' },
   { id: 'nav-settings', label: 'Settings', href: '/settings', icon: Settings, group: 'Navigate' },
   { id: 'create-task', label: 'New task', href: '/tasks/new', icon: SquarePen, group: 'Create' },
-  { id: 'create-project', label: 'New project', href: '/projects/new', icon: FolderPlus, group: 'Create' },
+  {
+    id: 'create-project',
+    label: 'New project',
+    href: '/projects/new',
+    icon: FolderPlus,
+    group: 'Create',
+  },
   { id: 'create-sprint', label: 'New sprint', href: '/sprints/new', icon: Timer, group: 'Create' },
 ];
 
@@ -91,8 +109,7 @@ export function CommandPalette() {
         const target = event.target as HTMLElement | null;
         const editable =
           target &&
-          (target.isContentEditable ||
-            ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
+          (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
         if (!editable && !open) {
           event.preventDefault();
           openPalette();
@@ -235,7 +252,7 @@ export function CommandPalette() {
             }}
             onKeyDown={onInputKeyDown}
             placeholder="Type a command or search…"
-            className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="placeholder:text-muted-foreground h-11 w-full bg-transparent text-sm outline-none"
             aria-label="Command palette search"
             autoComplete="off"
             spellCheck={false}

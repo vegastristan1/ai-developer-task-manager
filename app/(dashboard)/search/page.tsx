@@ -64,11 +64,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   ]);
 
   const noResults =
-    results && results.counts.projects === 0 && results.counts.tasks === 0 && results.counts.labels === 0;
+    results &&
+    results.counts.projects === 0 &&
+    results.counts.tasks === 0 &&
+    results.counts.labels === 0;
 
   return (
     <>
-      <PageHeader title="Search" description="Search across projects, tasks, labels, and descriptions." />
+      <PageHeader
+        title="Search"
+        description="Search across projects, tasks, labels, and descriptions."
+      />
 
       <SearchBox
         initial={{ q, status, priority, type, technicalArea, projectId, sprintId }}
@@ -102,7 +108,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   <li key={task.id}>
                     <Link
                       href={`/tasks/${task.id}`}
-                      className="flex items-center justify-between gap-3 px-3 py-2 hover:bg-muted/50"
+                      className="hover:bg-muted/50 flex items-center justify-between gap-3 px-3 py-2"
                     >
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-medium">{task.title}</span>
@@ -133,7 +139,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   <li key={project.id}>
                     <Link
                       href={`/projects/${project.id}`}
-                      className="flex items-center justify-between gap-3 px-3 py-2 hover:bg-muted/50"
+                      className="hover:bg-muted/50 flex items-center justify-between gap-3 px-3 py-2"
                     >
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-medium">{project.name}</span>
@@ -161,7 +167,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   <li key={label.id}>
                     <Link
                       href={`/tasks?q=${encodeURIComponent(label.name)}`}
-                      className="flex items-center justify-between gap-3 px-3 py-2 hover:bg-muted/50"
+                      className="hover:bg-muted/50 flex items-center justify-between gap-3 px-3 py-2"
                     >
                       <span className="flex min-w-0 items-center gap-2">
                         <span

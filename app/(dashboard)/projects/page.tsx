@@ -32,9 +32,10 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
   const filters = await searchParams;
   const q = filters.q?.trim() || undefined;
   const statusRaw = filters.status?.trim();
-  const status = statusRaw && (projectStatuses as readonly string[]).includes(statusRaw)
-    ? (statusRaw as ProjectStatusValue)
-    : undefined;
+  const status =
+    statusRaw && (projectStatuses as readonly string[]).includes(statusRaw)
+      ? (statusRaw as ProjectStatusValue)
+      : undefined;
   const hasFilters = !!(q || status);
 
   const projects = await listProjects(user.id, { q, status });

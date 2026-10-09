@@ -129,14 +129,17 @@ function contextBlock(ctx: ChatContext): string {
   if (ctx.projectName) {
     lines.push(`Bound project: ${ctx.projectName}`);
     if (ctx.projectDescription) lines.push(`Project description: ${ctx.projectDescription}`);
-    if (ctx.technologyStack.length) lines.push(`Technology stack: ${ctx.technologyStack.join(', ')}`);
+    if (ctx.technologyStack.length)
+      lines.push(`Technology stack: ${ctx.technologyStack.join(', ')}`);
     lines.push(
       `Tasks: ${totalCount(ctx.statusCounts)} total (${formatCounts(ctx.statusCounts)}), ${ctx.blockedCount} blocked`,
     );
     if (ctx.tasks.length > 0) {
       lines.push('Tasks (id | title | status | priority | type):');
       for (const task of ctx.tasks) {
-        lines.push(`- ${task.id} | ${task.title} | ${task.status} | ${task.priority} | ${task.type}`);
+        lines.push(
+          `- ${task.id} | ${task.title} | ${task.status} | ${task.priority} | ${task.type}`,
+        );
       }
     } else {
       lines.push('This project has no tasks yet.');
@@ -225,7 +228,9 @@ export function mockChatReply(ctx: ChatContext, userMessage: string): string {
     );
   } else if (
     ctx.projectId &&
-    /\b(create|add|new|draft|open)\b.*\btask\b|\btask\b.*\b(to|for)\b|\bcreate\b|\badd\b/.test(lower)
+    /\b(create|add|new|draft|open)\b.*\btask\b|\btask\b.*\b(to|for)\b|\bcreate\b|\badd\b/.test(
+      lower,
+    )
   ) {
     const titleMatch = userMessage.match(/\btask\s+(?:to|for|:)\s*(.+)/i);
     const title = (titleMatch?.[1] ?? userMessage).trim().slice(0, 200);
@@ -233,7 +238,11 @@ export function mockChatReply(ctx: ChatContext, userMessage: string): string {
     parts.push(
       actionFence({
         type: 'create_task',
-        params: { title, description: `Created from AI chat: "${userMessage.slice(0, 200)}"`, priority: 'MEDIUM' },
+        params: {
+          title,
+          description: `Created from AI chat: "${userMessage.slice(0, 200)}"`,
+          priority: 'MEDIUM',
+        },
       }),
     );
   } else if (!ctx.projectName) {

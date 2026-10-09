@@ -77,7 +77,10 @@ const detailsInclude = {
   },
   dependencies: {
     orderBy: { createdAt: 'asc' as const },
-    select: { id: true, dependsOn: { select: { id: true, title: true, status: true, priority: true } } },
+    select: {
+      id: true,
+      dependsOn: { select: { id: true, title: true, status: true, priority: true } },
+    },
   },
   dependents: {
     orderBy: { createdAt: 'asc' as const },

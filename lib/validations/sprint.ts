@@ -20,8 +20,7 @@ const nameField = z
   .min(1, 'Name is required')
   .max(100, 'Name must be 100 characters or fewer');
 
-const datesValid = (startDate: Date, endDate: Date) =>
-  endDate.getTime() >= startDate.getTime();
+const datesValid = (startDate: Date, endDate: Date) => endDate.getTime() >= startDate.getTime();
 
 export const sprintSchema = z
   .object({
@@ -44,14 +43,10 @@ export const updateSprintSchema = z
     endDate: dateField.optional(),
     projectId: z.string().trim().min(1, 'Project is required').optional(),
   })
-  .refine(
-    (data) =>
-      !data.startDate || !data.endDate || datesValid(data.startDate, data.endDate),
-    {
-      message: 'End date must be on or after the start date',
-      path: ['endDate'],
-    },
-  );
+  .refine((data) => !data.startDate || !data.endDate || datesValid(data.startDate, data.endDate), {
+    message: 'End date must be on or after the start date',
+    path: ['endDate'],
+  });
 
 export type SprintInput = z.infer<typeof sprintSchema>;
 export type UpdateSprintInput = z.infer<typeof updateSprintSchema>;

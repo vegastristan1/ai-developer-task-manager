@@ -34,10 +34,7 @@ export default async function ChatPage({ searchParams }: ChatPageProps) {
 
   return (
     <>
-      <PageHeader
-        title="AI Chat"
-        description="Ask AI about your projects, tasks, and sprints."
-      />
+      <PageHeader title="AI Chat" description="Ask AI about your projects, tasks, and sprints." />
       <ChatShell
         key={active?.id ?? 'new'}
         conversations={conversations}

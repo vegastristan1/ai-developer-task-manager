@@ -18,10 +18,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const conversations = await listConversations(
-    session.user.id,
-    parsedQuery.data.projectId,
-  );
+  const conversations = await listConversations(session.user.id, parsedQuery.data.projectId);
 
   return NextResponse.json({ conversations });
 }

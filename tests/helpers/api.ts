@@ -14,11 +14,7 @@ export interface ApiResponse<T = any> {
 export class ApiClient {
   private cookies = new Map<string, string>();
 
-  async request<T = any>(
-    method: string,
-    path: string,
-    body?: unknown,
-  ): Promise<ApiResponse<T>> {
+  async request<T = any>(method: string, path: string, body?: unknown): Promise<ApiResponse<T>> {
     const headers: Record<string, string> = { Accept: 'application/json' };
     if (this.cookies.size > 0) {
       headers.Cookie = [...this.cookies].map(([name, value]) => `${name}=${value}`).join('; ');

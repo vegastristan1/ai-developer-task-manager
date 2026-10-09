@@ -54,9 +54,10 @@ export function computeSprintStats(
     TaskStatusValue,
     number
   >;
-  const byPriority = Object.fromEntries(
-    taskPriorities.map((priority) => [priority, 0]),
-  ) as Record<TaskPriorityValue, number>;
+  const byPriority = Object.fromEntries(taskPriorities.map((priority) => [priority, 0])) as Record<
+    TaskPriorityValue,
+    number
+  >;
   const byType = Object.fromEntries(taskTypes.map((type) => [type, 0])) as Record<
     TaskTypeValue,
     number
@@ -69,8 +70,7 @@ export function computeSprintStats(
   let overdue = 0;
 
   for (const task of tasks) {
-    byStatus[task.status as TaskStatusValue] =
-      (byStatus[task.status as TaskStatusValue] ?? 0) + 1;
+    byStatus[task.status as TaskStatusValue] = (byStatus[task.status as TaskStatusValue] ?? 0) + 1;
     byPriority[task.priority as TaskPriorityValue] =
       (byPriority[task.priority as TaskPriorityValue] ?? 0) + 1;
     byType[task.type as TaskTypeValue] = (byType[task.type as TaskTypeValue] ?? 0) + 1;

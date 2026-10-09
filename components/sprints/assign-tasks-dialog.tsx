@@ -92,7 +92,7 @@ export function AssignTasksDialog({ sprintId, tasks }: AssignTasksDialogProps) {
             No backlog tasks available — every task in this project is already in a sprint.
           </p>
         ) : (
-          <ul className="max-h-72 overflow-y-auto grid gap-1.5">
+          <ul className="grid max-h-72 gap-1.5 overflow-y-auto">
             {tasks.map((task) => {
               const checked = selectedIds.includes(task.id);
               return (

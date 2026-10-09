@@ -85,7 +85,7 @@ export default async function TaskDetailsPage({ params }: TaskPageProps) {
       </PageHeader>
 
       {openBlockers.length > 0 && (
-        <div className="border-amber-600/40 bg-amber-600/10 flex items-start gap-2 rounded-lg border p-3 text-sm">
+        <div className="flex items-start gap-2 rounded-lg border border-amber-600/40 bg-amber-600/10 p-3 text-sm">
           <ShieldAlert
             className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400"
             aria-hidden

@@ -14,7 +14,13 @@ interface ActionCardProps {
   onDismiss: () => void;
 }
 
-export function ActionCard({ action, canApprove, isApproving, onApprove, onDismiss }: ActionCardProps) {
+export function ActionCard({
+  action,
+  canApprove,
+  isApproving,
+  onApprove,
+  onDismiss,
+}: ActionCardProps) {
   return (
     <div className="border-bg-background mt-2 grid gap-2 rounded-md border p-3">
       <p className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase">

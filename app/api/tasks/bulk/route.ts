@@ -21,9 +21,8 @@ export async function POST(request: NextRequest) {
   const result = await createTasksBulk(session.user.id, parsed.data);
 
   if (!result.ok) {
-    const status = result.reason === 'project-not-found' || result.reason === 'parent-not-found'
-      ? 404
-      : 422;
+    const status =
+      result.reason === 'project-not-found' || result.reason === 'parent-not-found' ? 404 : 422;
     const error =
       result.reason === 'project-not-found'
         ? 'Project not found'

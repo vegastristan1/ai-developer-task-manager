@@ -3,8 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import type { DependencyReason } from '@/lib/validations/dependency';
 
 export type DependencyResult =
-  | { ok: true; dependency: TaskDependency }
-  | { ok: false; reason: DependencyReason };
+  { ok: true; dependency: TaskDependency } | { ok: false; reason: DependencyReason };
 
 export interface DependencyTask {
   dependencyId: string;

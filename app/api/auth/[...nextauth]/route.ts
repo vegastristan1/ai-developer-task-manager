@@ -10,9 +10,7 @@ const MAX_LOGIN_BODY_BYTES = 8 * 1024;
 
 export const GET = handlers.GET;
 
-async function extractEmail(
-  request: NextRequest,
-): Promise<{ email: string; tooLarge: boolean }> {
+async function extractEmail(request: NextRequest): Promise<{ email: string; tooLarge: boolean }> {
   const declared = Number(request.headers.get('content-length'));
   if (Number.isFinite(declared) && declared > MAX_LOGIN_BODY_BYTES) {
     return { email: '', tooLarge: true };
@@ -55,9 +53,7 @@ export async function POST(request: NextRequest) {
 
   const setCookies =
     typeof response.headers.getSetCookie === 'function' ? response.headers.getSetCookie() : [];
-  const signedIn = setCookies.some((cookie) =>
-    cookie.toLowerCase().includes('session-token'),
-  );
+  const signedIn = setCookies.some((cookie) => cookie.toLowerCase().includes('session-token'));
   if (signedIn && email) resetRateLimit(emailKey);
 
   return response;

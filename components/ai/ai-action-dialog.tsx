@@ -194,7 +194,8 @@ export function AiActionDialog({
         <DialogHeader>
           <DialogTitle>{dialogTitles[action]}</DialogTitle>
           <DialogDescription>
-            {action === 'breakdown' && 'Select the subtasks to create. Nothing is saved until you approve.'}
+            {action === 'breakdown' &&
+              'Select the subtasks to create. Nothing is saved until you approve.'}
             {action === 'plan' &&
               'Edit the plan if needed, then save it to this task. Nothing is saved until you approve.'}
             {action === 'acceptance-criteria' &&
@@ -225,10 +226,7 @@ export function AiActionDialog({
             {rows.map((row, index) => {
               const exists = existingSet.has(normalizeTitle(row.title));
               return (
-                <li
-                  key={`${index}-${row.title}`}
-                  className="grid gap-1.5 rounded-md border p-2.5"
-                >
+                <li key={`${index}-${row.title}`} className="grid gap-1.5 rounded-md border p-2.5">
                   <div className="flex items-center gap-2.5">
                     <input
                       type="checkbox"
@@ -262,7 +260,7 @@ export function AiActionDialog({
                   )}
                   <div className="flex flex-wrap gap-1.5 pl-6">
                     {exists && (
-                      <span className="border-amber-600/40 bg-amber-600/10 text-amber-700 dark:text-amber-400 rounded-md border px-1.5 py-0.5 text-[11px] font-medium">
+                      <span className="rounded-md border border-amber-600/40 bg-amber-600/10 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">
                         already exists
                       </span>
                     )}
@@ -354,7 +352,10 @@ export function AiActionDialog({
               </div>
             </div>
             <div className="grid gap-2">
-              <label htmlFor="ai-estimate-effort" className="text-muted-foreground text-sm font-medium">
+              <label
+                htmlFor="ai-estimate-effort"
+                className="text-muted-foreground text-sm font-medium"
+              >
                 Estimated effort
               </label>
               <Input
@@ -410,7 +411,9 @@ export function AiActionDialog({
           )}
           {action === 'plan' && (
             <Button
-              onClick={() => saveToTask({ implementationPlan: planText.trim() }, 'Implementation plan saved')}
+              onClick={() =>
+                saveToTask({ implementationPlan: planText.trim() }, 'Implementation plan saved')
+              }
               disabled={isSaving || planText.trim().length === 0}
             >
               {isSaving && <Loader2 className="animate-spin" />}

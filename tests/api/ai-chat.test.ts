@@ -28,9 +28,7 @@ describe('AI chat API', () => {
   it('rejects invalid payloads', async () => {
     expect((await client.post('/api/ai/chat', {})).status).toBe(422);
     expect((await client.post('/api/ai/chat', { content: '   ' })).status).toBe(422);
-    expect(
-      (await client.post('/api/ai/chat', { content: 'x'.repeat(4001) })).status,
-    ).toBe(422);
+    expect((await client.post('/api/ai/chat', { content: 'x'.repeat(4001) })).status).toBe(422);
   });
 
   it('returns 404 for an unknown bound project', async () => {
@@ -79,9 +77,7 @@ describe('AI chat API', () => {
   it('lists conversations with titles and counts', async () => {
     const response = await client.get('/api/ai/conversations');
     expect(response.status).toBe(200);
-    const summary = response.json.conversations.find(
-      (entry: any) => entry.id === conversationId,
-    );
+    const summary = response.json.conversations.find((entry: any) => entry.id === conversationId);
     expect(summary).toBeTruthy();
     expect(summary.title).toBe('Hello, assistant!');
     expect(summary.messageCount).toBe(4);
