@@ -35,7 +35,8 @@ jobs:
     env:
       # Ephemeral CI database (service container above); no secrets required.
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/app_test?sslmode=disable
-      AUTH_SECRET: ci-only-not-a-real-secret
+      # App requires >= 32 chars in production (lib/auth/index.ts); CI-only value.
+      AUTH_SECRET: ci-only-not-a-real-secret-but-longer-than-32-characters
       # AI calls are mocked by the test suite; placeholders keep config complete.
       OPENAI_API_KEY: ci-placeholder
       OPENAI_BASE_URL: https://api.openai.com/v1
@@ -44,10 +45,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -81,9 +82,10 @@ jobs:
 
       - name: Upload test artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-artifacts
+          if-no-files-found: ignore
           path: |
             test-results/
             playwright-report/
