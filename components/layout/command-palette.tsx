@@ -3,21 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ComponentType, KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Columns3,
-  FolderKanban,
-  FolderPlus,
-  Hash,
-  LayoutDashboard,
-  ListTodo,
-  MessageSquare,
-  Search,
-  Settings,
-  SquarePen,
-  Timer,
-} from 'lucide-react';
+import { FolderKanban, Hash, ListTodo, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
+import { CREATE_ITEMS, NAV_ITEMS } from '@/lib/nav';
+import { cn } from 'cn';
 
 interface CommandDef {
   id: string;
@@ -27,37 +16,9 @@ interface CommandDef {
   group: string;
 }
 
-const commands: CommandDef[] = [
-  {
-    id: 'nav-dashboard',
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-    group: 'Navigate',
-  },
-  {
-    id: 'nav-projects',
-    label: 'Projects',
-    href: '/projects',
-    icon: FolderKanban,
-    group: 'Navigate',
-  },
-  { id: 'nav-board', label: 'Board', href: '/board', icon: Columns3, group: 'Navigate' },
-  { id: 'nav-tasks', label: 'Tasks', href: '/tasks', icon: ListTodo, group: 'Navigate' },
-  { id: 'nav-sprints', label: 'Sprints', href: '/sprints', icon: Timer, group: 'Navigate' },
-  { id: 'nav-search', label: 'Search', href: '/search', icon: Search, group: 'Navigate' },
-  { id: 'nav-chat', label: 'AI Chat', href: '/chat', icon: MessageSquare, group: 'Navigate' },
-  { id: 'nav-settings', label: 'Settings', href: '/settings', icon: Settings, group: 'Navigate' },
-  { id: 'create-task', label: 'New task', href: '/tasks/new', icon: SquarePen, group: 'Create' },
-  {
-    id: 'create-project',
-    label: 'New project',
-    href: '/projects/new',
-    icon: FolderPlus,
-    group: 'Create',
-  },
-  { id: 'create-sprint', label: 'New sprint', href: '/sprints/new', icon: Timer, group: 'Create' },
-];
+const commands: CommandDef[] = [...NAV_ITEMS, ...CREATE_ITEMS].map(
+  ({ id, title, href, icon, group }) => ({ id, label: title, href, icon, group }),
+);
 
 interface PaletteResults {
   tasks: { id: string; title: string; project: { name: string } }[];

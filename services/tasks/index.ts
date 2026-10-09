@@ -1,7 +1,15 @@
+import { cacheTag, revalidateTag } from 'next/cache';
 import { Prisma, type Task } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { normalizeTitle } from '@/lib/utils';
 import type { BulkTaskInput, TaskInput, UpdateTaskInput } from '@/lib/validations/task';
+
+function revalidateTaskCaches() {
+  revalidateTag('tasks', { expire: 0 });
+  revalidateTag('sprints', { expire: 0 });
+  revalidateTag('dashboard', { expire: 0 });
+  revalidateTag('search', { expire: 0 });
+}
 
 export type TaskWithCounts = Task & {
   project: { id: string; name: string };
@@ -109,6 +117,8 @@ export async function listTasks(
   userId: string,
   filters: TaskFilters = {},
 ): Promise<TaskWithCounts[]> {
+  'use cache';
+  cacheTag('tasks');
   const { projectId, sprintId, status, priority, type, technicalArea, q, sort } = filters;
 
   const tasks = await prisma.task.findMany({
@@ -140,6 +150,8 @@ export async function listTasks(
 }
 
 export async function getTask(id: string, userId: string): Promise<TaskDetails | null> {
+  'use cache';
+  cacheTag('tasks');
   return prisma.task.findFirst({
     where: { id, project: { userId } },
     include: detailsInclude,
@@ -223,6 +235,7 @@ export async function createTask(userId: string, input: TaskInput): Promise<Task
     include: detailsInclude,
   });
 
+  revalidateTaskCaches();
   return { ok: true, task };
 }
 
@@ -306,6 +319,7 @@ export async function updateTask(
     include: detailsInclude,
   });
 
+  revalidateTaskCaches();
   return { ok: true, task };
 }
 
@@ -317,6 +331,7 @@ export async function deleteTask(id: string, userId: string): Promise<boolean> {
   if (!existing) return false;
 
   await prisma.task.delete({ where: { id } });
+  revalidateTaskCaches();
   return true;
 }
 
@@ -406,5 +421,6 @@ export async function createTasksBulk(
     { timeout: 15_000 },
   );
 
+  revalidateTaskCaches();
   return { ok: true, tasks, skipped };
 }

@@ -46,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
         if (!valid) return null;
 
-        return { id: user.id, email: user.email, name: user.name };
+        return { id: user.id, email: user.email, name: user.name, image: user.image };
       },
     }),
   ],
@@ -54,22 +54,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id;
+        token.picture = user.image ?? null;
+        token.v = Date.now();
         return token;
       }
-      if (typeof token.id === 'string') {
-        const exists = await prisma.user.findUnique({
+      // Verify the account still exists, but at most once per hour — doing this
+      // on every request added a serial database round trip to each navigation.
+      // The same query refreshes the display claims so profile renames propagate
+      // without keeping a per-request database read.
+      const CHECK_INTERVAL_MS = 60 * 60 * 1000;
+      const lastChecked = typeof token.v === 'number' ? token.v : 0;
+      if (typeof token.id === 'string' && Date.now() - lastChecked > CHECK_INTERVAL_MS) {
+        const account = await prisma.user.findUnique({
           where: { id: token.id },
-          select: { id: true },
+          select: { id: true, name: true, image: true },
         });
-        if (!exists) {
+        if (!account) {
           return null;
         }
+        token.name = account.name;
+        token.picture = account.image ?? null;
+        token.v = Date.now();
       }
       return token;
     },
     session({ session, token }) {
       if (session.user && typeof token.id === 'string') {
         session.user.id = token.id;
+        session.user.name = typeof token.name === 'string' ? token.name : null;
+        if (typeof token.email === 'string') {
+          session.user.email = token.email;
+        }
+        session.user.image = typeof token.picture === 'string' ? token.picture : null;
       }
       return session;
     },

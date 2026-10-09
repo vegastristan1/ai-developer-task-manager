@@ -1,6 +1,17 @@
+import { cacheTag, revalidateTag } from 'next/cache';
 import type { Prisma, Project } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import type { ProjectFilters, ProjectInput, UpdateProjectInput } from '@/lib/validations/project';
+
+function revalidateProjectCaches() {
+  revalidateTag('projects', { expire: 0 });
+  revalidateTag('tasks', { expire: 0 });
+  revalidateTag('sprints', { expire: 0 });
+  revalidateTag('labels', { expire: 0 });
+  revalidateTag('chat', { expire: 0 });
+  revalidateTag('dashboard', { expire: 0 });
+  revalidateTag('search', { expire: 0 });
+}
 
 type ProjectWithCounts = Project & {
   _count: { tasks: number; sprints: number; labels: number };
@@ -16,6 +27,8 @@ export async function listProjects(
   userId: string,
   filters: ProjectFilters = {},
 ): Promise<ProjectWithCounts[]> {
+  'use cache';
+  cacheTag('projects');
   return prisma.project.findMany({
     where: {
       userId,
@@ -33,6 +46,8 @@ export async function listProjects(
 }
 
 export async function getProject(id: string, userId: string): Promise<ProjectWithCounts | null> {
+  'use cache';
+  cacheTag('projects');
   return prisma.project.findFirst({ where: { id, userId }, ...withCounts });
 }
 
@@ -40,7 +55,7 @@ export async function createProject(
   userId: string,
   input: ProjectInput,
 ): Promise<ProjectWithCounts> {
-  return prisma.project.create({
+  const project = await prisma.project.create({
     data: {
       name: input.name,
       description: input.description ?? null,
@@ -51,6 +66,8 @@ export async function createProject(
     },
     ...withCounts,
   });
+  revalidateProjectCaches();
+  return project;
 }
 
 export async function updateProject(
@@ -64,7 +81,7 @@ export async function updateProject(
   });
   if (!existing) return null;
 
-  return prisma.project.update({
+  const project = await prisma.project.update({
     where: { id },
     data: {
       ...(input.name !== undefined && { name: input.name }),
@@ -75,6 +92,8 @@ export async function updateProject(
     },
     ...withCounts,
   });
+  revalidateProjectCaches();
+  return project;
 }
 
 export async function deleteProject(id: string, userId: string): Promise<boolean> {
@@ -85,5 +104,6 @@ export async function deleteProject(id: string, userId: string): Promise<boolean
   if (!existing) return false;
 
   await prisma.project.delete({ where: { id } });
+  revalidateProjectCaches();
   return true;
 }

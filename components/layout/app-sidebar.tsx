@@ -3,17 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import {
-  Bot,
-  Columns3,
-  FolderKanban,
-  LayoutDashboard,
-  ListTodo,
-  LogOut,
-  MessageSquare,
-  Settings,
-  Timer,
-} from 'lucide-react';
+import { Bot, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -36,16 +26,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar';
-
-const navItems = [
-  { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { title: 'Projects', href: '/projects', icon: FolderKanban },
-  { title: 'Board', href: '/board', icon: Columns3 },
-  { title: 'Tasks', href: '/tasks', icon: ListTodo },
-  { title: 'Sprints', href: '/sprints', icon: Timer },
-  { title: 'AI Chat', href: '/chat', icon: MessageSquare },
-  { title: 'Settings', href: '/settings', icon: Settings },
-];
+import { NAV_ITEMS } from '@/lib/nav';
 
 interface AppSidebarProps {
   user: {
@@ -87,7 +68,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarGroupLabel>Workspace</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => {
+              {NAV_ITEMS.filter((item) => item.inSidebar).map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
                   <SidebarMenuItem key={item.href}>

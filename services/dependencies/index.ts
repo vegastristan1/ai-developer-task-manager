@@ -1,6 +1,12 @@
+import { cacheTag, revalidateTag } from 'next/cache';
 import type { Task, TaskDependency } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import type { DependencyReason } from '@/lib/validations/dependency';
+
+function revalidateDependencyCaches() {
+  revalidateTag('tasks', { expire: 0 });
+  revalidateTag('dashboard', { expire: 0 });
+}
 
 export type DependencyResult =
   { ok: true; dependency: TaskDependency } | { ok: false; reason: DependencyReason };
@@ -31,6 +37,8 @@ export async function listTaskDependencies(
   userId: string,
   taskId: string,
 ): Promise<TaskDependencies | null> {
+  'use cache';
+  cacheTag('tasks');
   const task = await findOwnTask(taskId, userId);
   if (!task) return null;
 
@@ -121,6 +129,7 @@ export async function addDependency(
     data: { taskId, dependsOnId },
   });
 
+  revalidateDependencyCaches();
   return { ok: true, dependency };
 }
 
@@ -136,5 +145,6 @@ export async function removeDependency(
   if (!dependency) return false;
 
   await prisma.taskDependency.delete({ where: { id: dependencyId } });
+  revalidateDependencyCaches();
   return true;
 }

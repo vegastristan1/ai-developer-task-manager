@@ -1,3 +1,4 @@
+import { cacheTag } from 'next/cache';
 import { prisma } from '@/lib/db/prisma';
 import { computeSprintStats, type SprintStats } from '@/services/sprints';
 import {
@@ -90,6 +91,8 @@ function tally<K extends string>(
 }
 
 export async function getDashboardStats(userId: string): Promise<DashboardStats> {
+  'use cache';
+  cacheTag('dashboard');
   const now = new Date();
   const dueSoonCutoff = now.getTime() + 7 * DAY_MS;
 

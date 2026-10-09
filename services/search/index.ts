@@ -1,3 +1,4 @@
+import { cacheTag } from 'next/cache';
 import { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import type { SearchQuery } from '@/lib/validations/search';
@@ -67,6 +68,8 @@ function taskWhere(userId: string, params: SearchQuery): Prisma.TaskWhereInput {
 }
 
 export async function searchAll(userId: string, params: SearchQuery): Promise<SearchResults> {
+  'use cache';
+  cacheTag('search');
   const { q } = params;
 
   const [projects, projectCount, tasks, taskCount, labels, labelCount] = await Promise.all([

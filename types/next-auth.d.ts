@@ -11,5 +11,7 @@ declare module 'next-auth' {
 declare module '@auth/core/jwt' {
   interface JWT {
     id?: string;
+    /** Timestamp of the last "user still exists" check (throttled to once per hour). */
+    v?: number;
   }
 }

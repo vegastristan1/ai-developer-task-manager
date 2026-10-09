@@ -1,3 +1,4 @@
+import { cacheTag, revalidateTag } from 'next/cache';
 import type { Sprint, Task } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import type { SprintInput, UpdateSprintInput } from '@/lib/validations/sprint';
@@ -9,6 +10,13 @@ import {
   type TaskStatusValue,
   type TaskTypeValue,
 } from '@/lib/validations/task';
+
+function revalidateSprintCaches() {
+  revalidateTag('sprints', { expire: 0 });
+  revalidateTag('tasks', { expire: 0 });
+  revalidateTag('dashboard', { expire: 0 });
+  revalidateTag('search', { expire: 0 });
+}
 
 export type SprintResult =
   | { ok: true; sprint: Sprint }
@@ -129,6 +137,8 @@ export async function listSprints(
   userId: string,
   filters: { projectId?: string } = {},
 ): Promise<SprintListEntry[]> {
+  'use cache';
+  cacheTag('sprints');
   const sprints = await prisma.sprint.findMany({
     where: {
       project: { userId },
@@ -142,6 +152,8 @@ export async function listSprints(
 }
 
 export async function getSprint(id: string, userId: string): Promise<SprintDetails | null> {
+  'use cache';
+  cacheTag('sprints');
   return prisma.sprint.findFirst({
     where: { id, project: { userId } },
     include: detailsInclude,
@@ -175,6 +187,7 @@ export async function createSprint(userId: string, input: SprintInput): Promise<
     },
   });
 
+  revalidateSprintCaches();
   return { ok: true, sprint };
 }
 
@@ -211,6 +224,7 @@ export async function updateSprint(
     },
   });
 
+  revalidateSprintCaches();
   return { ok: true, sprint };
 }
 
@@ -222,5 +236,6 @@ export async function deleteSprint(id: string, userId: string): Promise<boolean>
   if (!existing) return false;
 
   await prisma.sprint.delete({ where: { id } });
+  revalidateSprintCaches();
   return true;
 }

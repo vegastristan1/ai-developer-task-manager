@@ -1,5 +1,10 @@
+import { cacheTag, revalidateTag } from 'next/cache';
 import type { AIRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
+
+function revalidateChatCaches() {
+  revalidateTag('chat', { expire: 0 });
+}
 
 export interface ConversationSummary {
   id: string;
@@ -31,6 +36,8 @@ export async function listConversations(
   userId: string,
   projectId?: string,
 ): Promise<ConversationSummary[]> {
+  'use cache';
+  cacheTag('chat');
   const conversations = await prisma.aIConversation.findMany({
     where: { userId, ...(projectId && { projectId }) },
     orderBy: { updatedAt: 'desc' },
@@ -72,6 +79,8 @@ export async function getConversation(
   id: string,
   userId: string,
 ): Promise<ConversationDetail | null> {
+  'use cache';
+  cacheTag('chat');
   const conversation = await prisma.aIConversation.findFirst({
     where: { id, userId },
     select: {
@@ -98,6 +107,7 @@ export async function deleteConversation(id: string, userId: string): Promise<bo
   if (!conversation) return false;
 
   await prisma.aIConversation.delete({ where: { id } });
+  revalidateChatCaches();
   return true;
 }
 
@@ -110,6 +120,7 @@ export async function createConversation(
     data: { userId, projectId, title },
     select: { id: true },
   });
+  revalidateChatCaches();
   return conversation;
 }
 
@@ -118,8 +129,10 @@ export async function appendMessage(
   role: AIRole,
   content: string,
 ): Promise<ChatMessageItem> {
-  return prisma.aIMessage.create({
+  const message = await prisma.aIMessage.create({
     data: { conversationId, role, content },
     select: { id: true, role: true, content: true, createdAt: true },
   });
+  revalidateChatCaches();
+  return message;
 }

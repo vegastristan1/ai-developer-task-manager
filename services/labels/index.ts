@@ -1,3 +1,4 @@
+import { cacheTag, revalidateTag } from 'next/cache';
 import type { Label } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import type { LabelInput, UpdateLabelInput } from '@/lib/validations/label';
@@ -5,6 +6,12 @@ import type { LabelInput, UpdateLabelInput } from '@/lib/validations/label';
 export type LabelResult =
   | { ok: true; label: Label }
   | { ok: false; reason: 'project-not-found' | 'label-not-found' | 'conflict' };
+
+function revalidateLabelCaches() {
+  revalidateTag('labels', { expire: 0 });
+  revalidateTag('tasks', { expire: 0 });
+  revalidateTag('search', { expire: 0 });
+}
 
 async function projectExists(projectId: string, userId: string): Promise<boolean> {
   const project = await prisma.project.findFirst({
@@ -15,6 +22,8 @@ async function projectExists(projectId: string, userId: string): Promise<boolean
 }
 
 export async function listLabels(userId: string, projectId: string): Promise<Label[] | null> {
+  'use cache';
+  cacheTag('labels');
   if (!(await projectExists(projectId, userId))) return null;
 
   return prisma.label.findMany({
@@ -42,6 +51,7 @@ export async function createLabel(userId: string, input: LabelInput): Promise<La
     },
   });
 
+  revalidateLabelCaches();
   return { ok: true, label };
 }
 
@@ -71,6 +81,7 @@ export async function updateLabel(
     },
   });
 
+  revalidateLabelCaches();
   return { ok: true, label };
 }
 
@@ -82,5 +93,6 @@ export async function deleteLabel(id: string, userId: string): Promise<boolean> 
   if (!existing) return false;
 
   await prisma.label.delete({ where: { id } });
+  revalidateLabelCaches();
   return true;
 }

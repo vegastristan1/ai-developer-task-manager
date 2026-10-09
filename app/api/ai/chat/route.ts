@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import type { AIRole } from '@/generated/prisma/client';
 import { buildChatContext, buildSystemPrompt, mockChatReply } from '@/lib/ai/chat';
 import { AiError, chatStream } from '@/lib/ai/client';
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
         where: { id: conversation.id },
         data: { projectId: boundProjectId },
       });
+      revalidateTag('chat', { expire: 0 });
     }
   } else {
     const created = await createConversation(userId, boundProjectId, titleFrom(content));

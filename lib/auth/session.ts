@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { Session } from 'next-auth';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db/prisma';
 
 type AuthResult = { session: Session; response: null } | { session: null; response: NextResponse };
 
@@ -28,12 +27,15 @@ export type SessionUser = {
 export async function getSessionUser(): Promise<SessionUser | null> {
   const session = await auth();
 
-  if (!session?.user?.id) {
+  if (!session?.user?.id || !session.user.email) {
     return null;
   }
 
-  return prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { id: true, name: true, email: true, image: true },
-  });
+  // Built entirely from JWT session claims — no database round trip.
+  return {
+    id: session.user.id,
+    name: session.user.name ?? null,
+    email: session.user.email,
+    image: session.user.image ?? null,
+  };
 }
