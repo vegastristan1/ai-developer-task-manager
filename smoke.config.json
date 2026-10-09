@@ -1,0 +1,13 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "budgetMs": 3000,
+  "checkConsole": true,
+  "ignoreConsole": ["/_vercel/", "favicon"],
+  "pages": [
+    { "path": "/", "title": "AI Developer Task Manager" },
+    { "path": "/login", "title": "AI Developer Task Manager", "expect": "password" },
+    { "path": "/register", "title": "AI Developer Task Manager", "expect": "password" },
+    { "path": "/dashboard", "redirect": "manual", "status": [302, 303, 307, 308] },
+    { "path": "/api/auth/csrf", "status": 200 }
+  ]
+}

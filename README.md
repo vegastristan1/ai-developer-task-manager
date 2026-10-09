@@ -92,6 +92,24 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run db:migrate` | Run Prisma migrations    |
 | `npm run db:seed`    | Seed demo data           |
 | `npm run db:studio`  | Open Prisma Studio       |
+| `npm run smoke`      | Run smoke tests          |
+
+## Smoke Test
+
+A portable, zero-dependency smoke test lives in `scripts/smoke.mjs`. It checks HTTP status, response-time budgets, titles/content, and (when Playwright is installed) console errors — against any URL:
+
+```bash
+# against the local app (see smoke.config.json)
+npm run smoke
+
+# against any deployed site
+npm run smoke -- --base-url https://your-app.vercel.app
+
+# status/content checks only, no browser
+npm run smoke -- --no-browser
+```
+
+Copy `scripts/smoke.mjs` and `smoke.config.json` into another project to reuse it — no install needed.
 
 ## License
 

@@ -17,6 +17,10 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+// Vercel serves /_vercel/* script paths at the platform level; self-hosted
+// builds would 404 them, so only load analytics when deployed on Vercel.
+const isVercel = Boolean(process.env.VERCEL);
+
 export const metadata: Metadata = {
   title: {
     default: 'AI Developer Task Manager',
@@ -42,8 +46,8 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
           <Toaster position="top-right" richColors closeButton />
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+        {isVercel && <Analytics />}
+        {isVercel && <SpeedInsights />}
       </body>
     </html>
   );

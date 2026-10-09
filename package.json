@@ -13,6 +13,7 @@
     "test:unit": "vitest run tests/unit tests/component",
     "test:api": "vitest run tests/api",
     "test:e2e": "next build && playwright test",
+    "smoke": "node scripts/smoke.mjs",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
