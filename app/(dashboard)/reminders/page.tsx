@@ -5,23 +5,14 @@ import Link from 'next/link';
 import { BellRing, CalendarClock, OctagonAlert, Timer } from 'lucide-react';
 import { EmptyState } from '@/components/common/empty-state';
 import { PageHeader } from '@/components/common/page-header';
+import { RemindersEmailButton } from '@/components/reminders/email-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSessionUser } from '@/lib/auth/session';
-import { prisma } from '@/lib/db/prisma';
-import { DUE_SOON_DAYS } from '@/app/api/reminders/route';
+import { DUE_SOON_DAYS, getReminders } from '@/lib/reminders';
 
 export const metadata: Metadata = { title: 'Reminders' };
 
 export const instant = false;
-
-const select = {
-  id: true,
-  title: true,
-  status: true,
-  priority: true,
-  dueDate: true,
-  project: { select: { id: true, name: true } },
-} as const;
 
 function formatDue(value: Date | null): string {
   if (!value) return 'No due date';
@@ -86,30 +77,7 @@ export default async function RemindersPage() {
     redirect('/login');
   }
 
-  const now = new Date();
-  const soon = new Date(now.getTime() + DUE_SOON_DAYS * 24 * 60 * 60 * 1000);
-  const owned = { project: { userId: user.id } };
-
-  const [overdue, dueSoon, blocked] = await Promise.all([
-    prisma.task.findMany({
-      where: { ...owned, status: { not: 'DONE' }, dueDate: { lt: now } },
-      select,
-      orderBy: { dueDate: 'asc' },
-      take: 50,
-    }),
-    prisma.task.findMany({
-      where: { ...owned, status: { not: 'DONE' }, dueDate: { gte: now, lte: soon } },
-      select,
-      orderBy: { dueDate: 'asc' },
-      take: 50,
-    }),
-    prisma.task.findMany({
-      where: { ...owned, status: 'BLOCKED' },
-      select,
-      orderBy: { updatedAt: 'desc' },
-      take: 50,
-    }),
-  ]);
+  const { overdue, dueSoon, blocked } = await getReminders(user.id);
 
   const total = overdue.length + dueSoon.length + blocked.length;
 
@@ -118,7 +86,9 @@ export default async function RemindersPage() {
       <PageHeader
         title="Reminders"
         description="Overdue, due soon, and blocked tasks across your workspace."
-      />
+      >
+        <RemindersEmailButton />
+      </PageHeader>
       {total === 0 ? (
         <EmptyState
           icon={<BellRing />}
