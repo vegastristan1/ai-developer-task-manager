@@ -16,12 +16,14 @@ export function TaskCard({ task }: TaskCardProps) {
   const dueDate = task.dueDate ? new Date(task.dueDate) : null;
 
   return (
-    <Link
-      href={`/tasks/${task.id}`}
-      className="bg-background hover:bg-muted/40 block rounded-lg border p-3 shadow-sm transition-colors"
-    >
+    <div className="bg-background hover:bg-muted/40 block rounded-lg border p-3 shadow-sm transition-colors">
       <div className="flex items-start justify-between gap-2">
-        <span className="line-clamp-2 text-sm leading-snug font-medium">{task.title}</span>
+        <Link
+          href={`/tasks/${task.id}`}
+          className="line-clamp-2 text-sm leading-snug font-medium hover:underline"
+        >
+          {task.title}
+        </Link>
         <span className="shrink-0">
           <TaskPriorityBadge priority={task.priority} />
         </span>
@@ -66,9 +68,11 @@ export function TaskCard({ task }: TaskCardProps) {
             <span>{task._count.subtasks} subtasks</span>
           </>
         )}
-        {task.blockedCount > 0 && <BlockedBadge count={task.blockedCount} />}
+        {task.blockedCount > 0 && (
+          <BlockedBadge count={task.blockedCount} blockers={task.blockedBy} />
+        )}
       </div>
-    </Link>
+    </div>
   );
 }
 

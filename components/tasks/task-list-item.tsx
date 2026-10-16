@@ -27,13 +27,12 @@ export function TaskListItem({ task }: TaskListItemProps) {
   const overdue = task.overdue;
 
   return (
-    <Link
-      href={`/tasks/${task.id}`}
-      className="hover:bg-muted/50 block rounded-lg border p-4 transition-colors"
-    >
+    <div className="hover:bg-muted/50 block rounded-lg border p-4 transition-colors">
       <div className="flex flex-wrap items-center gap-2">
         <TaskStatusBadge status={task.status} />
-        <span className="text-sm font-medium">{task.title}</span>
+        <Link href={`/tasks/${task.id}`} className="text-sm font-medium hover:underline">
+          {task.title}
+        </Link>
         <span className="ml-auto">
           <TaskPriorityBadge priority={task.priority} />
         </span>
@@ -83,8 +82,10 @@ export function TaskListItem({ task }: TaskListItemProps) {
         )}
         <span aria-hidden>·</span>
         <span>{formatUpdated(task.updatedAt)}</span>
-        {task.blockedCount > 0 && <BlockedBadge count={task.blockedCount} />}
+        {task.blockedCount > 0 && (
+          <BlockedBadge count={task.blockedCount} blockers={task.blockedBy} />
+        )}
       </div>
-    </Link>
+    </div>
   );
 }

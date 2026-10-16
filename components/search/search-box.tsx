@@ -71,7 +71,7 @@ export function SearchBox({ initial, projects, sprints }: SearchBoxProps) {
   return (
     <div className="flex flex-col gap-2">
       <form
-        className="flex items-center gap-2"
+        className="flex w-full items-center gap-2"
         onSubmit={(event) => {
           event.preventDefault();
           const value = new FormData(event.currentTarget).get('q');
@@ -83,7 +83,7 @@ export function SearchBox({ initial, projects, sprints }: SearchBoxProps) {
           key={initial.q ?? ''}
           defaultValue={initial.q ?? ''}
           placeholder="Search tasks, projects, labels, descriptions…"
-          className="max-w-xl flex-1"
+          className="min-w-0 flex-1"
           aria-label="Search everything"
         />
         <Button type="submit">
@@ -103,7 +103,7 @@ export function SearchBox({ initial, projects, sprints }: SearchBoxProps) {
           value={initial.projectId ?? ALL}
           onValueChange={(value) => apply({ projectId: value })}
         >
-          <SelectTrigger className="w-48" aria-label="Filter by project">
+          <SelectTrigger className="min-w-36 flex-1" aria-label="Filter by project">
             <SelectValue placeholder="All projects" />
           </SelectTrigger>
           <SelectContent>
@@ -120,7 +120,7 @@ export function SearchBox({ initial, projects, sprints }: SearchBoxProps) {
           value={initial.sprintId ?? ALL}
           onValueChange={(value) => apply({ sprintId: value })}
         >
-          <SelectTrigger className="w-44" aria-label="Filter by sprint">
+          <SelectTrigger className="min-w-36 flex-1" aria-label="Filter by sprint">
             <SelectValue placeholder="All sprints" />
           </SelectTrigger>
           <SelectContent>
@@ -134,7 +134,7 @@ export function SearchBox({ initial, projects, sprints }: SearchBoxProps) {
         </Select>
 
         <Select value={initial.status ?? ALL} onValueChange={(value) => apply({ status: value })}>
-          <SelectTrigger className="w-40" aria-label="Filter by status">
+          <SelectTrigger className="min-w-36 flex-1" aria-label="Filter by status">
             <SelectValue placeholder="All statuses" />
           </SelectTrigger>
           <SelectContent>
@@ -151,7 +151,7 @@ export function SearchBox({ initial, projects, sprints }: SearchBoxProps) {
           value={initial.priority ?? ALL}
           onValueChange={(value) => apply({ priority: value })}
         >
-          <SelectTrigger className="w-40" aria-label="Filter by priority">
+          <SelectTrigger className="min-w-36 flex-1" aria-label="Filter by priority">
             <SelectValue placeholder="All priorities" />
           </SelectTrigger>
           <SelectContent>
@@ -165,7 +165,7 @@ export function SearchBox({ initial, projects, sprints }: SearchBoxProps) {
         </Select>
 
         <Select value={initial.type ?? ALL} onValueChange={(value) => apply({ type: value })}>
-          <SelectTrigger className="w-40" aria-label="Filter by type">
+          <SelectTrigger className="min-w-36 flex-1" aria-label="Filter by type">
             <SelectValue placeholder="All types" />
           </SelectTrigger>
           <SelectContent>
@@ -182,7 +182,7 @@ export function SearchBox({ initial, projects, sprints }: SearchBoxProps) {
           value={initial.technicalArea ?? ALL}
           onValueChange={(value) => apply({ technicalArea: value })}
         >
-          <SelectTrigger className="w-40" aria-label="Filter by technical area">
+          <SelectTrigger className="min-w-36 flex-1" aria-label="Filter by technical area">
             <SelectValue placeholder="All areas" />
           </SelectTrigger>
           <SelectContent>

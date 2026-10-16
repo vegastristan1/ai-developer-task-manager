@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   DndContext,
@@ -19,8 +19,32 @@ import { toast } from 'sonner';
 import { BoardColumn } from '@/components/board/board-column';
 import { resolveMove } from '@/components/board/move';
 import { TaskCard } from '@/components/board/task-card';
-import { taskStatuses } from '@/lib/validations/task';
+import { taskStatuses, type TaskStatusValue } from '@/lib/validations/task';
 import type { TaskWithCounts } from '@/services/tasks';
+
+const COLLAPSED_STORAGE_KEY = 'task-board-collapsed-columns';
+const DEFAULT_OPEN: ReadonlySet<TaskStatusValue> = new Set(['TODO', 'IN_PROGRESS']);
+
+type CollapsedState = Record<TaskStatusValue, boolean>;
+
+function defaultCollapsed(): CollapsedState {
+  return Object.fromEntries(
+    taskStatuses.map((status) => [status, !DEFAULT_OPEN.has(status)]),
+  ) as CollapsedState;
+}
+
+function readStoredCollapsed(): CollapsedState | null {
+  try {
+    const raw = window.localStorage.getItem(COLLAPSED_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<Record<TaskStatusValue, boolean>>;
+    return Object.fromEntries(
+      taskStatuses.map((status) => [status, parsed[status] === true]),
+    ) as CollapsedState;
+  } catch {
+    return null;
+  }
+}
 
 interface BoardProps {
   tasks: TaskWithCounts[];
@@ -32,6 +56,25 @@ export function Board({ tasks, sort }: BoardProps) {
   const [items, setItems] = useState<TaskWithCounts[]>(tasks);
   const [lastTasks, setLastTasks] = useState<TaskWithCounts[]>(tasks);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState<CollapsedState>(defaultCollapsed);
+
+  useEffect(() => {
+    const stored = readStoredCollapsed();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe localStorage read: must run client-side after mount to avoid SSR mismatch
+    if (stored) setCollapsed(stored);
+  }, []);
+
+  function toggleColumn(status: TaskStatusValue) {
+    setCollapsed((previous) => {
+      const next = { ...previous, [status]: !previous[status] };
+      try {
+        window.localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // Storage unavailable (private mode, quota) — column still toggles for this visit.
+      }
+      return next;
+    });
+  }
 
   if (tasks !== lastTasks) {
     setLastTasks(tasks);
@@ -114,6 +157,7 @@ export function Board({ tasks, sort }: BoardProps) {
       )}
 
       <DndContext
+        id="task-board"
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}
@@ -126,6 +170,8 @@ export function Board({ tasks, sort }: BoardProps) {
               status={column.status}
               tasks={column.tasks}
               dragDisabled={dragDisabled}
+              collapsed={collapsed[column.status]}
+              onToggle={() => toggleColumn(column.status)}
             />
           ))}
         </div>

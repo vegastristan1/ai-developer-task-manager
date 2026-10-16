@@ -101,7 +101,7 @@ export function TaskFilters({
         value={initial.projectId ?? ALL}
         onValueChange={(value) => apply({ projectId: value })}
       >
-        <SelectTrigger className="w-52" aria-label="Filter by project">
+        <SelectTrigger className="min-w-40 flex-1" aria-label="Filter by project">
           <SelectValue placeholder="All projects" />
         </SelectTrigger>
         <SelectContent>
@@ -116,7 +116,7 @@ export function TaskFilters({
 
       {showStatus && (
         <Select value={initial.status ?? ALL} onValueChange={(value) => apply({ status: value })}>
-          <SelectTrigger className="w-44" aria-label="Filter by status">
+          <SelectTrigger className="min-w-40 flex-1" aria-label="Filter by status">
             <SelectValue placeholder="All statuses" />
           </SelectTrigger>
           <SelectContent>
@@ -131,7 +131,7 @@ export function TaskFilters({
       )}
 
       <Select value={initial.priority ?? ALL} onValueChange={(value) => apply({ priority: value })}>
-        <SelectTrigger className="w-44" aria-label="Filter by priority">
+        <SelectTrigger className="min-w-40 flex-1" aria-label="Filter by priority">
           <SelectValue placeholder="All priorities" />
         </SelectTrigger>
         <SelectContent>
@@ -145,7 +145,7 @@ export function TaskFilters({
       </Select>
 
       <Select value={initial.type ?? ALL} onValueChange={(value) => apply({ type: value })}>
-        <SelectTrigger className="w-44" aria-label="Filter by task type">
+        <SelectTrigger className="min-w-40 flex-1" aria-label="Filter by task type">
           <SelectValue placeholder="All types" />
         </SelectTrigger>
         <SelectContent>
@@ -162,7 +162,7 @@ export function TaskFilters({
         value={initial.technicalArea ?? ALL}
         onValueChange={(value) => apply({ technicalArea: value })}
       >
-        <SelectTrigger className="w-44" aria-label="Filter by technical area">
+        <SelectTrigger className="min-w-40 flex-1" aria-label="Filter by technical area">
           <SelectValue placeholder="All areas" />
         </SelectTrigger>
         <SelectContent>
@@ -180,7 +180,7 @@ export function TaskFilters({
           value={initial.sprintId ?? ALL}
           onValueChange={(value) => apply({ sprintId: value })}
         >
-          <SelectTrigger className="w-44" aria-label="Filter by sprint">
+          <SelectTrigger className="min-w-40 flex-1" aria-label="Filter by sprint">
             <SelectValue placeholder="All sprints" />
           </SelectTrigger>
           <SelectContent>
@@ -199,7 +199,7 @@ export function TaskFilters({
           value={initial.sort ?? defaultSort}
           onValueChange={(value) => apply({ sort: value })}
         >
-          <SelectTrigger className="w-48" aria-label="Sort tasks">
+          <SelectTrigger className="min-w-40 flex-1" aria-label="Sort tasks">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -213,7 +213,7 @@ export function TaskFilters({
       )}
 
       <form
-        className="flex items-center gap-2"
+        className="flex min-w-52 flex-1 items-center gap-2"
         onSubmit={(event) => {
           event.preventDefault();
           const value = new FormData(event.currentTarget).get('q');
@@ -224,7 +224,7 @@ export function TaskFilters({
           name="q"
           defaultValue={initial.q ?? ''}
           placeholder="Search tasks…"
-          className="w-52"
+          className="min-w-0 flex-1"
           aria-label="Search tasks"
         />
         <Button type="submit" variant="outline" size="icon" aria-label="Search">

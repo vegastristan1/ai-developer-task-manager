@@ -14,11 +14,11 @@ export function TopNav() {
   const title = PAGE_TITLES[segment] ?? 'Not found';
 
   return (
-    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur">
+    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20 flex h-14 w-full max-w-full shrink-0 items-center gap-2 border-b px-4 backdrop-blur">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mr-2 h-4" />
-      <span className="text-sm font-medium">{title}</span>
-      <div className="ml-auto flex items-center gap-2">
+      <span className="min-w-0 flex-1 truncate text-sm font-medium">{title}</span>
+      <div className="ml-auto flex shrink-0 items-center gap-2">
         <Button
           variant="outline"
           size="sm"
@@ -28,6 +28,15 @@ export function TopNav() {
           <Search className="size-3.5" aria-hidden />
           Search…
           <kbd className="bg-muted rounded border px-1 font-mono text-[10px]">Ctrl K</kbd>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="sm:hidden"
+          aria-label="Search"
+          onClick={() => window.dispatchEvent(new Event('open-command-palette'))}
+        >
+          <Search aria-hidden />
         </Button>
         <ThemeToggle />
       </div>

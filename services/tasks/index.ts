@@ -16,6 +16,7 @@ export type TaskWithCounts = Task & {
   labels: { label: { id: string; name: string; color: string } }[];
   _count: { subtasks: number };
   blockedCount: number;
+  blockedBy: { id: string; title: string; status: Task['status'] }[];
   overdue: boolean;
 };
 
@@ -71,7 +72,10 @@ const listInclude = {
   _count: { select: { subtasks: true } },
   dependencies: {
     where: { dependsOn: { status: { not: 'DONE' as const } } },
-    select: { dependsOnId: true },
+    select: {
+      dependsOnId: true,
+      dependsOn: { select: { id: true, title: true, status: true } },
+    },
   },
 } satisfies object;
 
@@ -145,6 +149,7 @@ export async function listTasks(
   return tasks.map(({ dependencies, ...task }) => ({
     ...task,
     blockedCount: dependencies.length,
+    blockedBy: dependencies.map(({ dependsOn }) => dependsOn),
     overdue: !!task.dueDate && task.dueDate.getTime() < now && task.status !== 'DONE',
   }));
 }
