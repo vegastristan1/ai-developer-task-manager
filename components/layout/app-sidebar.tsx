@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { Bot, LogOut } from 'lucide-react';
+import { Bot, LogOut, ShieldCheck } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -33,9 +33,11 @@ interface AppSidebarProps {
     name: string | null;
     email: string | null;
   };
+  isAdmin?: boolean;
+  pendingApprovals?: number;
 }
 
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AppSidebar({ user, isAdmin = false, pendingApprovals = 0 }: AppSidebarProps) {
   const pathname = usePathname();
 
   const initials = (user.name ?? user.email ?? '?')
@@ -84,6 +86,32 @@ export function AppSidebar({ user }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.startsWith('/admin')}
+                    tooltip="User approvals"
+                  >
+                    <Link href="/admin/users">
+                      <ShieldCheck />
+                      <span>User approvals</span>
+                      {pendingApprovals > 0 && (
+                        <span className="bg-primary text-primary-foreground ml-auto rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums">
+                          {pendingApprovals}
+                        </span>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

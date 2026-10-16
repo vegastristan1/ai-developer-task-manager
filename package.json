@@ -24,6 +24,7 @@
     "db:reset": "prisma migrate reset --force",
     "db:seed": "prisma db seed",
     "db:seed:qa": "tsx scripts/seed-qa.ts",
+    "db:promote-admin": "tsx scripts/promote-admin.ts",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate"
   },

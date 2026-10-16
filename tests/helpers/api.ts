@@ -1,3 +1,5 @@
+import { prisma } from '@/lib/db/prisma';
+
 export const TEST_BASE_URL = process.env.TEST_BASE_URL ?? 'http://localhost:4100';
 
 export const PASSWORD = 'password123';
@@ -115,6 +117,13 @@ export async function ensureUser(email: string, name: string): Promise<void> {
     const text = await response.text();
     throw new Error(`ensureUser failed (${response.status}): ${text}`);
   }
+  // Registrations start unapproved; the suite logs in as these users, so
+  // approve them the way an admin would (dedicated pending-flow tests cover
+  // the gate itself).
+  await prisma.user.update({
+    where: { email },
+    data: { approved: true, approvedAt: new Date() },
+  });
 }
 
 export async function loginClient(email: string = TEST_EMAIL): Promise<ApiClient> {

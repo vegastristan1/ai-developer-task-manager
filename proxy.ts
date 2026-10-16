@@ -23,6 +23,10 @@ export default auth(async (req) => {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
+  if (isLoggedIn && pathname.startsWith('/admin') && !req.auth?.user?.isAdmin) {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
+  }
+
   const match = PROJECT_DETAIL_PATTERN.exec(pathname);
   const userId = req.auth?.user?.id;
   const projectId = match?.[1] ? decodeURIComponent(match[1]) : null;

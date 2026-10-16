@@ -8,6 +8,7 @@ import { CommandPalette } from '@/components/layout/command-palette';
 import { TopNav } from '@/components/layout/top-nav';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { getSessionUser } from '@/lib/auth/session';
+import { prisma } from '@/lib/db/prisma';
 
 export const instant = false;
 
@@ -22,6 +23,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false';
 
+  const pendingApprovals = user.isAdmin
+    ? await prisma.user.count({ where: { approved: false } })
+    : 0;
+
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar
@@ -29,6 +34,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           name: user.name,
           email: user.email,
         }}
+        isAdmin={user.isAdmin}
+        pendingApprovals={pendingApprovals}
       />
       <SidebarInset>
         <TopNav />

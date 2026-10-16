@@ -4,6 +4,7 @@ declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
+      isAdmin: boolean;
     } & DefaultSession['user'];
   }
 }
@@ -11,6 +12,7 @@ declare module 'next-auth' {
 declare module '@auth/core/jwt' {
   interface JWT {
     id?: string;
+    isAdmin?: boolean;
     /** Timestamp of the last "user still exists" check (throttled to once per hour). */
     v?: number;
   }

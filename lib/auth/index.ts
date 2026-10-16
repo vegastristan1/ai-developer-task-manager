@@ -1,8 +1,12 @@
-import NextAuth from 'next-auth';
+import NextAuth, { CredentialsSignin } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db/prisma';
 import { loginSchema } from '@/lib/validations/auth';
+
+class PendingApprovalError extends CredentialsSignin {
+  code = 'pending_approval';
+}
 
 const isProduction = process.env.NODE_ENV === 'production';
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
@@ -46,7 +50,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
         if (!valid) return null;
 
-        return { id: user.id, email: user.email, name: user.name, image: user.image };
+        if (!user.approved) {
+          throw new PendingApprovalError();
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          isAdmin: user.isAdmin,
+        };
       },
     }),
   ],
@@ -54,26 +68,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id;
+        token.isAdmin = (user as { isAdmin?: boolean }).isAdmin === true;
         token.picture = user.image ?? null;
         token.v = Date.now();
         return token;
       }
-      // Verify the account still exists, but at most once per hour — doing this
-      // on every request added a serial database round trip to each navigation.
-      // The same query refreshes the display claims so profile renames propagate
-      // without keeping a per-request database read.
+      // Verify the account still exists (and is still approved), but at most
+      // once per hour — doing this on every request added a serial database
+      // round trip to each navigation. The same query refreshes the display
+      // claims so profile renames propagate without keeping a per-request
+      // database read.
       const CHECK_INTERVAL_MS = 60 * 60 * 1000;
       const lastChecked = typeof token.v === 'number' ? token.v : 0;
       if (typeof token.id === 'string' && Date.now() - lastChecked > CHECK_INTERVAL_MS) {
         const account = await prisma.user.findUnique({
           where: { id: token.id },
-          select: { id: true, name: true, image: true },
+          select: { id: true, name: true, image: true, approved: true, isAdmin: true },
         });
-        if (!account) {
+        if (!account || !account.approved) {
           return null;
         }
         token.name = account.name;
         token.picture = account.image ?? null;
+        token.isAdmin = account.isAdmin;
         token.v = Date.now();
       }
       return token;
@@ -81,6 +98,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session({ session, token }) {
       if (session.user && typeof token.id === 'string') {
         session.user.id = token.id;
+        session.user.isAdmin = token.isAdmin === true;
         session.user.name = typeof token.name === 'string' ? token.name : null;
         if (typeof token.email === 'string') {
           session.user.email = token.email;

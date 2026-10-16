@@ -30,6 +30,8 @@ async function main() {
       email: 'alex@example.com',
       name: 'Alex Developer',
       passwordHash,
+      approved: true,
+      approvedAt: new Date(),
     },
   });
 

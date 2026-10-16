@@ -124,5 +124,6 @@ export const PAGE_TITLES: Record<string, string> = {
   chat: 'AI Chat',
   search: 'Search',
   settings: 'Settings',
+  admin: 'User Approvals',
   'style-guide': 'Style Guide',
 };

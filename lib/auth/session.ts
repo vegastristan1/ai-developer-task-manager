@@ -22,6 +22,7 @@ export type SessionUser = {
   name: string | null;
   email: string;
   image: string | null;
+  isAdmin: boolean;
 };
 
 export async function getSessionUser(): Promise<SessionUser | null> {
@@ -37,5 +38,21 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     name: session.user.name ?? null,
     email: session.user.email,
     image: session.user.image ?? null,
+    isAdmin: session.user.isAdmin === true,
   };
+}
+
+type AdminResult = { user: SessionUser; response: null } | { user: null; response: NextResponse };
+
+export async function requireAdmin(): Promise<AdminResult> {
+  const user = await getSessionUser();
+
+  if (!user?.isAdmin) {
+    return {
+      user: null,
+      response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }),
+    };
+  }
+
+  return { user, response: null };
 }

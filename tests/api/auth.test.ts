@@ -8,6 +8,7 @@ import {
   TEST_EMAIL,
   uniqueName,
 } from '../helpers/api';
+import { prisma } from '@/lib/db/prisma';
 
 describe('auth API', () => {
   it('rejects unauthenticated requests on protected routes', async () => {
@@ -19,7 +20,7 @@ describe('auth API', () => {
     expect((await anon.get('/api/auth/me')).status).toBe(401);
   });
 
-  it('registers a new account', async () => {
+  it('registers a new account as pending approval', async () => {
     const email = uniqueName('vitest-register').replace(/\s+/g, '-') + '@example.com';
     const client = new ApiClient();
     const response = await client.post('/api/auth/register', {
@@ -29,6 +30,35 @@ describe('auth API', () => {
     });
     expect(response.status).toBe(201);
     expect(response.json.user.email).toBe(email);
+    expect(response.json.pendingApproval).toBe(true);
+  });
+
+  it('blocks login until the account is approved, then allows it', async () => {
+    const email = uniqueName('vitest-pending').replace(/\s+/g, '-') + '@example.com';
+    const register = await fetch(
+      `${process.env.TEST_BASE_URL ?? 'http://localhost:4100'}/api/auth/register`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Pending Test', email, password: PASSWORD }),
+      },
+    );
+    expect(register.status).toBe(201);
+
+    const pending = new ApiClient();
+    await pending.login(email);
+    expect((await pending.get('/api/auth/me')).status).toBe(401);
+
+    await prisma.user.update({
+      where: { email },
+      data: { approved: true, approvedAt: new Date() },
+    });
+
+    const approved = new ApiClient();
+    await approved.login(email);
+    const me = await approved.get('/api/auth/me');
+    expect(me.status).toBe(200);
+    expect(me.json.user.email).toBe(email);
   });
 
   it('rejects invalid registration payloads', async () => {

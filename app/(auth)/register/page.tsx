@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -19,16 +18,14 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    const email = String(formData.get('email'));
-    const password = String(formData.get('password'));
 
     const response = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: String(formData.get('name')),
-        email,
-        password,
+        email: String(formData.get('email')),
+        password: String(formData.get('password')),
       }),
     });
 
@@ -39,18 +36,9 @@ export default function RegisterPage() {
       return;
     }
 
-    const result = await signIn('credentials', { email, password, redirect: false });
     setIsLoading(false);
-
-    if (result?.error) {
-      toast.error('Account created, but sign-in failed. Please log in.');
-      router.push('/login');
-      return;
-    }
-
-    toast.success('Account created');
-    router.push('/dashboard');
-    router.refresh();
+    toast.success('Account created — waiting for approval before you can sign in.');
+    router.push('/login');
   }
 
   return (
