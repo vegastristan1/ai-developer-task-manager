@@ -8,6 +8,7 @@ import type { LoadingStyle } from '@/components/loading/loading-style';
 import { LoadingStyleForm } from '@/components/settings/loading-style-form';
 import { AppearanceForm } from '@/components/settings/appearance-form';
 import { ExportDataForm } from '@/components/settings/export-data-form';
+import { ImportDataForm } from '@/components/settings/import-data-form';
 import { PasswordForm } from '@/components/settings/password-form';
 import { ProfileForm } from '@/components/settings/profile-form';
 
@@ -91,6 +92,7 @@ export function SettingsTabs({ defaultTab, profileInitial, loadingStyle }: Setti
             <ProfileForm initial={profileInitial} />
             <PasswordForm />
             <ExportDataForm email={profileInitial.email} />
+            <ImportDataForm />
           </>
         ) : (
           <>
