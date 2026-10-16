@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import { aiConfigured, chatJson, type AiSource } from '@/lib/ai/client';
+import { resolveTone, withTone } from '@/lib/ai/style';
 import { mockBreakdown, mockCriteria, mockEstimate, mockPlan, mockReview } from '@/lib/ai/mocks';
 import {
   breakdownPrompts,
@@ -77,8 +78,12 @@ async function runAction<T>(
   if (!loaded) return { ok: false, reason: 'task-not-found' };
 
   const { system, user } = build(loaded.ctx);
+  const prefs = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { aiTone: true },
+  });
   const result = await chatJson({
-    system,
+    system: withTone(system, resolveTone(prefs?.aiTone)),
     user,
     schema,
     mock: () => mock(loaded.ctx),

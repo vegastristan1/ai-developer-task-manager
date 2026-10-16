@@ -25,6 +25,7 @@ export const profileSchema = z.object({
     .refine((value) => value === undefined || value === '' || /^https?:\/\/\S+$/.test(value), {
       message: 'Image must be a valid http(s) URL or empty',
     }),
+  aiTone: z.enum(['CONCISE', 'BALANCED', 'DETAILED']).optional(),
 });
 
 export const passwordChangeSchema = z

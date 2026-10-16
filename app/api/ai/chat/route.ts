@@ -4,6 +4,7 @@ import { revalidateTag } from 'next/cache';
 import type { AIRole } from '@/generated/prisma/client';
 import { buildChatContext, buildSystemPrompt, mockChatReply } from '@/lib/ai/chat';
 import { AiError, chatStream } from '@/lib/ai/client';
+import { resolveTone, withTone } from '@/lib/ai/style';
 import { requireAuth } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { readJsonBody } from '@/lib/security/body';
@@ -93,7 +94,11 @@ export async function POST(request: NextRequest) {
   await appendMessage(targetConversationId, 'USER', content);
 
   const context = await buildChatContext(userId, boundProjectId);
-  const system = buildSystemPrompt(context);
+  const prefs = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { aiTone: true },
+  });
+  const system = withTone(buildSystemPrompt(context), resolveTone(prefs?.aiTone));
 
   const turns = [
     ...history.slice(-20).map((message) => ({

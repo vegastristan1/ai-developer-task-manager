@@ -8,7 +8,7 @@ import { readJsonBody } from '@/lib/security/body';
 import { clientIp } from '@/lib/security/rate-limit';
 import { rateLimitResponse } from '@/lib/security/responses';
 
-const userSelect = { id: true, name: true, email: true, image: true } as const;
+const userSelect = { id: true, name: true, email: true, image: true, aiTone: true } as const;
 
 export async function GET() {
   const { session, response } = await requireAuth();
@@ -53,6 +53,7 @@ export async function PATCH(request: NextRequest) {
       ...(parsed.data.image === undefined
         ? {}
         : { image: parsed.data.image === '' ? null : parsed.data.image }),
+      ...(parsed.data.aiTone === undefined ? {} : { aiTone: parsed.data.aiTone }),
     },
   });
 

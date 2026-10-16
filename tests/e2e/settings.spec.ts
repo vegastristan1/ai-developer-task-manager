@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { loginViaUi } from './helpers';
+import { createProjectViaApi, deleteProjectViaApi, loginViaUi } from './helpers';
 
 test.describe('settings', () => {
   test.beforeEach(async ({ page }) => {
@@ -43,6 +43,35 @@ test.describe('settings', () => {
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toContain('workspace-export');
     expect(download.suggestedFilename()).toMatch(/\.json$/);
+  });
+
+  test('shows the AI tab with response style options', async ({ page }) => {
+    await page.getByRole('tab', { name: /^AI/ }).click();
+    await expect(page).toHaveURL(/\/settings\?tab=ai/);
+    await expect(
+      page.getByText('Applies to AI chat and task actions like breakdowns, plans, and reviews.'),
+    ).toBeVisible();
+    for (const label of ['Concise', 'Balanced', 'Detailed']) {
+      await expect(page.getByRole('radio', { name: new RegExp(label) })).toBeVisible();
+    }
+  });
+});
+
+test.describe('reminders', () => {
+  test('lists an overdue task under Overdue', async ({ page }) => {
+    await loginViaUi(page);
+    const projectId = await createProjectViaApi(page, 'E2E Reminder Fixture');
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const title = `E2E overdue ${Date.now()}`;
+    const created = await page.request.post('/api/tasks', {
+      data: { title, projectId, dueDate: yesterday },
+    });
+    expect(created.status()).toBe(201);
+
+    await page.goto('/reminders');
+    await expect(page.getByText(title)).toBeVisible();
+
+    await deleteProjectViaApi(page, projectId);
   });
 });
 

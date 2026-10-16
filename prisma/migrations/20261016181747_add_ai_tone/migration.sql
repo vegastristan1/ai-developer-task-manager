@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "AiTone" AS ENUM ('CONCISE', 'BALANCED', 'DETAILED');
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "aiTone" "AiTone" NOT NULL DEFAULT 'BALANCED';

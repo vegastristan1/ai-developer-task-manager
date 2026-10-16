@@ -424,3 +424,70 @@ describe('sign out everywhere API', () => {
     expect((await fresh.get('/api/auth/me')).status).toBe(200);
   });
 });
+
+describe('ai tone preference API', () => {
+  it('rejects unknown tones', async () => {
+    const email = uniqueEmail('vitest-tone-bad');
+    await ensureUser(email, 'Tone Bad');
+    const client = new ApiClient();
+    await client.login(email);
+    const response = await client.patch('/api/auth/me', { name: 'Tone Bad', aiTone: 'VERBOSE' });
+    expect(response.status).toBe(422);
+  });
+
+  it('saves and returns the chosen tone', async () => {
+    const email = uniqueEmail('vitest-tone-ok');
+    await ensureUser(email, 'Tone Ok');
+    const client = new ApiClient();
+    await client.login(email);
+    const response = await client.patch('/api/auth/me', {
+      name: 'Tone Ok',
+      aiTone: 'CONCISE',
+    });
+    expect(response.status).toBe(200);
+    expect(response.json.user.aiTone).toBe('CONCISE');
+
+    const me = await client.get('/api/auth/me');
+    expect(me.json.user.aiTone).toBe('CONCISE');
+  });
+});
+
+describe('reminders API', () => {
+  it('rejects unauthenticated requests', async () => {
+    const anon = new ApiClient();
+    expect((await anon.get('/api/reminders')).status).toBe(401);
+  });
+
+  it('categorizes overdue, due-soon, and blocked tasks', async () => {
+    const email = uniqueEmail('vitest-reminders');
+    await ensureUser(email, 'Reminders');
+    const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+    const project = await prisma.project.create({
+      data: { name: 'Reminder Fixture', userId: user!.id },
+    });
+    const past = await prisma.task.create({
+      data: { title: 'Past due', projectId: project.id, dueDate: new Date(Date.now() - 86400000) },
+    });
+    const soon = await prisma.task.create({
+      data: { title: 'Due soon', projectId: project.id, dueDate: new Date(Date.now() + 86400000) },
+    });
+    const blocked = await prisma.task.create({
+      data: { title: 'Blocked work', status: 'BLOCKED', projectId: project.id },
+    });
+    await prisma.task.create({
+      data: { title: 'Done old', status: 'DONE', projectId: project.id, dueDate: past.dueDate },
+    });
+
+    const client = new ApiClient();
+    await client.login(email);
+    const response = await client.get('/api/reminders');
+    expect(response.status).toBe(200);
+    expect(response.json.overdue.map((task: { id: string }) => task.id)).toContain(past.id);
+    expect(response.json.dueSoon.map((task: { id: string }) => task.id)).toContain(soon.id);
+    expect(response.json.blocked.map((task: { id: string }) => task.id)).toContain(blocked.id);
+    expect(response.json.overdue.map((task: { id: string }) => task.id)).not.toContain(soon.id);
+
+    await prisma.task.deleteMany({ where: { projectId: project.id } });
+    await prisma.project.deleteMany({ where: { id: project.id } });
+  });
+});

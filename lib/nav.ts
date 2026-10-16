@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import {
+  BellRing,
   Columns3,
   FolderKanban,
   FolderPlus,
@@ -79,6 +80,14 @@ export const NAV_ITEMS: NavItem[] = [
     inSidebar: true,
   },
   {
+    id: 'nav-reminders',
+    title: 'Reminders',
+    href: '/reminders',
+    icon: BellRing,
+    group: 'Navigate',
+    inSidebar: true,
+  },
+  {
     id: 'nav-settings',
     title: 'Settings',
     href: '/settings',
@@ -123,6 +132,7 @@ export const PAGE_TITLES: Record<string, string> = {
   sprints: 'Sprints',
   chat: 'AI Chat',
   search: 'Search',
+  reminders: 'Reminders',
   settings: 'Settings',
   admin: 'User Approvals',
   'style-guide': 'Style Guide',

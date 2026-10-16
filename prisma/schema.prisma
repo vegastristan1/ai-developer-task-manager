@@ -63,6 +63,12 @@ enum AIRole {
   ASSISTANT
 }
 
+enum AiTone {
+  CONCISE
+  BALANCED
+  DETAILED
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -73,6 +79,7 @@ model User {
   approvedAt   DateTime?
   isAdmin      Boolean  @default(false)
   tokenVersion Int      @default(0)
+  aiTone       AiTone   @default(BALANCED)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Palette, UserRound } from 'lucide-react';
+import { Palette, Sparkles, UserRound } from 'lucide-react';
 import { cn } from 'cn';
 import type { LoadingStyle } from '@/components/loading/loading-style';
 import { LoadingStyleForm } from '@/components/settings/loading-style-form';
+import { AIPreferencesForm, type AiToneOption } from '@/components/settings/ai-preferences-form';
 import { AppearanceForm } from '@/components/settings/appearance-form';
 import { DangerZoneForm } from '@/components/settings/danger-zone-form';
 import { ExportDataForm } from '@/components/settings/export-data-form';
@@ -14,7 +15,7 @@ import { PasswordForm } from '@/components/settings/password-form';
 import { SessionsForm } from '@/components/settings/sessions-form';
 import { ProfileForm } from '@/components/settings/profile-form';
 
-export type SettingsTab = 'account' | 'appearance';
+export type SettingsTab = 'account' | 'appearance' | 'ai';
 
 const tabs: Array<{
   value: SettingsTab;
@@ -29,15 +30,22 @@ const tabs: Array<{
     description: 'Theme and loading style',
     icon: Palette,
   },
+  { value: 'ai', label: 'AI', description: 'Response style', icon: Sparkles },
 ];
 
 interface SettingsTabsProps {
   defaultTab: SettingsTab;
   profileInitial: { name: string; email: string; image: string | null };
+  aiInitial: { name: string; tone: AiToneOption };
   loadingStyle: LoadingStyle;
 }
 
-export function SettingsTabs({ defaultTab, profileInitial, loadingStyle }: SettingsTabsProps) {
+export function SettingsTabs({
+  defaultTab,
+  profileInitial,
+  aiInitial,
+  loadingStyle,
+}: SettingsTabsProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [tab, setTab] = useState<SettingsTab>(defaultTab);
@@ -53,7 +61,7 @@ export function SettingsTabs({ defaultTab, profileInitial, loadingStyle }: Setti
       <div
         role="tablist"
         aria-label="Settings sections"
-        className="grid max-w-2xl gap-2 sm:grid-cols-2"
+        className="grid max-w-2xl gap-2 sm:grid-cols-3"
       >
         {tabs.map(({ value, label, description, icon: Icon }) => {
           const selected = value === tab;
@@ -98,11 +106,13 @@ export function SettingsTabs({ defaultTab, profileInitial, loadingStyle }: Setti
             <ImportDataForm />
             <DangerZoneForm email={profileInitial.email} />
           </>
-        ) : (
+        ) : tab === 'appearance' ? (
           <>
             <AppearanceForm />
             <LoadingStyleForm initial={loadingStyle} />
           </>
+        ) : (
+          <AIPreferencesForm initial={aiInitial} />
         )}
       </div>
     </div>
