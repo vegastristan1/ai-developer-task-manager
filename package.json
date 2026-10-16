@@ -26,6 +26,7 @@
     "db:migrate:dev": "prisma migrate dev",
     "db:seed:dev": "prisma db seed",
     "db:seed:demo-users": "tsx scripts/seed-demo-users.ts",
+    "db:clean-test-users": "tsx scripts/clean-test-users.ts",
     "db:reseed": "node scripts/reseed.mjs",
     "db:seed:qa": "tsx scripts/seed-qa.ts",
     "db:promote-admin": "tsx scripts/promote-admin.ts",
