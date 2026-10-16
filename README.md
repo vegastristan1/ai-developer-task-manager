@@ -38,7 +38,7 @@ Instead of a generic todo app, this platform understands development work — it
 | ---------- | --------------------------------------------------- |
 | Frontend   | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui |
 | Backend    | Next.js Route Handlers, Server Actions              |
-| Database   | PostgreSQL (Docker local, Neon prod), Prisma ORM    |
+| Database   | PostgreSQL (Neon dev + prod branches), Prisma ORM   |
 | AI         | OpenAI API                                          |
 | Validation | Zod                                                 |
 | Testing    | Vitest, React Testing Library, Playwright           |
@@ -62,21 +62,22 @@ Copy `.env.example` to `.env.local` and fill in your values:
 cp .env.example .env.local
 ```
 
-You'll need Docker Desktop for local Postgres and an OpenAI API key.
-Prod (Vercel) uses a Neon PostgreSQL connection string — never seed it.
+You'll need a Neon PostgreSQL connection string (dev branch for local work) and an
+OpenAI API key. Prod (Vercel) uses the Neon prod branch connection string.
 
-**3. Initialize the database (local Docker)**
+**3. Initialize the database (dev branch)**
 
 ```bash
-npm run db:up
 npx prisma migrate dev --name init
 npm run db:seed
+npm run db:seed:demo-users
 ```
 
-Or in one step: `npm run db:local`.
+Or in one step: `npm run db:reseed`.
 
-Seeding creates demo data, including a demo login for local development.
-`db:seed` refuses Neon URLs unless `ALLOW_PROD_SEED=true` — it wipes data.
+Seeding creates demo data, including demo logins for local development.
+Destructive commands (`db:seed`, `db:reset`) refuse the prod database unless
+`PROD_DATABASE_URL` matches and `ALLOW_PROD_SEED=true` — they wipe data.
 
 **4. Start the app**
 
@@ -88,26 +89,25 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command                | Description                                             |
-| ---------------------- | ------------------------------------------------------- |
-| `npm run dev`          | Start development server                                |
-| `npm run build`        | Production build                                        |
-| `npm run lint`         | Run ESLint                                              |
-| `npm run typecheck`    | TypeScript type check (`tsc --noEmit`)                  |
-| `npm run format`       | Format with Prettier                                    |
-| `npm run verify`       | Format + lint + typecheck + full test suite (CI parity) |
-| `npm run verify:quick` | Format + lint + typecheck (+ unit tests if built)       |
-| `npm run doctor`       | Check env vars, AUTH_SECRET, database, Prisma setup     |
-| `npm run qa`           | Build → smoke test → keep server up for manual QA       |
-| `npm run smoke`        | Run smoke tests                                         |
-| `npm run db:up`        | Start local Docker Postgres                             |
-| `npm run db:down`      | Stop local Docker Postgres                              |
-| `npm run db:local`     | Up + migrate + seed local Docker DB                     |
-| `npm run db:migrate`   | Run Prisma migrations                                   |
-| `npm run db:seed`      | Seed demo data                                          |
-| `npm run db:seed:qa`   | Add idempotent QA edge-case data for the demo user      |
-| `npm run db:reset`     | ⚠️ Destroy and recreate the database (destructive)      |
-| `npm run db:studio`    | Open Prisma Studio                                      |
+| Command                      | Description                                             |
+| ---------------------------- | ------------------------------------------------------- |
+| `npm run dev`                | Start development server                                |
+| `npm run build`              | Production build                                        |
+| `npm run lint`               | Run ESLint                                              |
+| `npm run typecheck`          | TypeScript type check (`tsc --noEmit`)                  |
+| `npm run format`             | Format with Prettier                                    |
+| `npm run verify`             | Format + lint + typecheck + full test suite (CI parity) |
+| `npm run verify:quick`       | Format + lint + typecheck (+ unit tests if built)       |
+| `npm run doctor`             | Check env vars, AUTH_SECRET, database, Prisma setup     |
+| `npm run qa`                 | Build → smoke test → keep server up for manual QA       |
+| `npm run smoke`              | Run smoke tests                                         |
+| `npm run db:migrate`         | Run Prisma migrations                                   |
+| `npm run db:seed`            | Seed demo data (destructive — wipes first)              |
+| `npm run db:seed:demo-users` | Ensure demo users exist (additive, safe)                |
+| `npm run db:reseed`          | Migrate + seed + demo users (fresh-start recovery)      |
+| `npm run db:seed:qa`         | Add idempotent QA edge-case data for the demo user      |
+| `npm run db:reset`           | ⚠️ Destroy and recreate the database (destructive)      |
+| `npm run db:studio`          | Open Prisma Studio                                      |
 
 ## Development Workflow
 

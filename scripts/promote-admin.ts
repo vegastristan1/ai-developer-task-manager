@@ -32,7 +32,12 @@ async function main() {
         `Promoted to admin: ${user.email} (approved=${user.approved}, isAdmin=${user.isAdmin})`,
       );
     } catch (error) {
-      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2025') {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === 'P2025'
+      ) {
         console.error(`User not found: ${email}. Register that email first, then re-run.`);
         process.exitCode = 1;
         continue;

@@ -48,9 +48,7 @@ export async function POST(request: Request) {
       email,
       name,
       passwordHash,
-      ...(bootstrap
-        ? { approved: true, approvedAt: new Date(), isAdmin: true }
-        : {}),
+      ...(bootstrap ? { approved: true, approvedAt: new Date(), isAdmin: true } : {}),
     },
   });
 
