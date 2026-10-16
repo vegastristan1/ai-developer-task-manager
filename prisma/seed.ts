@@ -2,6 +2,7 @@ import { config } from 'dotenv';
 import bcrypt from 'bcryptjs';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@/generated/prisma/client';
+import { ALL_SEED_USERS } from './demo-users';
 
 config({ path: ['.env.local', '.env'], quiet: true });
 
@@ -11,6 +12,18 @@ const prisma = new PrismaClient({ adapter });
 const DAY = 1000 * 60 * 60 * 24;
 
 async function main() {
+  const connectionString = process.env['DATABASE_URL'] ?? '';
+  const prodUrl = process.env['PROD_DATABASE_URL'] ?? '';
+  const prodHost = prodUrl.includes('@') ? (prodUrl.split('@')[1] ?? '') : '';
+  const isProdTarget =
+    prodUrl.length > 0 &&
+    process.env['ALLOW_PROD_SEED'] !== 'true' &&
+    (connectionString === prodUrl || (prodHost.length > 0 && connectionString.includes(prodHost)));
+  if (isProdTarget) {
+    throw new Error(
+      'Refusing to run destructive db:seed against the PROD database. This seed wipes users/projects/tasks. Set ALLOW_PROD_SEED=true to override (fresh prod only).',
+    );
+  }
   console.log('Seeding database...');
 
   await prisma.aIMessage.deleteMany();
@@ -25,15 +38,30 @@ async function main() {
 
   const passwordHash = await bcrypt.hash('password123', 12);
 
+  // Full user set for fresh DBs (destructive reseed restores everything,
+  // including the bootstrap admin). See scripts/seed-demo-users.ts for the
+  // additive version that never wipes.
   const user = await prisma.user.create({
     data: {
-      email: 'alex@example.com',
-      name: 'Alex Developer',
+      email: ALL_SEED_USERS[0]!.email,
+      name: ALL_SEED_USERS[0]!.name,
       passwordHash,
       approved: true,
       approvedAt: new Date(),
     },
   });
+  for (const demo of ALL_SEED_USERS.slice(1)) {
+    await prisma.user.create({
+      data: {
+        email: demo.email,
+        name: demo.name,
+        passwordHash,
+        approved: true,
+        approvedAt: new Date(),
+        isAdmin: demo.isAdmin,
+      },
+    });
+  }
 
   const now = Date.now();
 

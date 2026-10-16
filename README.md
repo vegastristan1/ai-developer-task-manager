@@ -38,7 +38,7 @@ Instead of a generic todo app, this platform understands development work — it
 | ---------- | --------------------------------------------------- |
 | Frontend   | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui |
 | Backend    | Next.js Route Handlers, Server Actions              |
-| Database   | PostgreSQL (Neon), Prisma ORM                       |
+| Database   | PostgreSQL (Docker local, Neon prod), Prisma ORM    |
 | AI         | OpenAI API                                          |
 | Validation | Zod                                                 |
 | Testing    | Vitest, React Testing Library, Playwright           |
@@ -62,16 +62,21 @@ Copy `.env.example` to `.env.local` and fill in your values:
 cp .env.example .env.local
 ```
 
-You'll need a Neon PostgreSQL connection string and an OpenAI API key.
+You'll need Docker Desktop for local Postgres and an OpenAI API key.
+Prod (Vercel) uses a Neon PostgreSQL connection string — never seed it.
 
-**3. Initialize the database**
+**3. Initialize the database (local Docker)**
 
 ```bash
+npm run db:up
 npx prisma migrate dev --name init
 npm run db:seed
 ```
 
+Or in one step: `npm run db:local`.
+
 Seeding creates demo data, including a demo login for local development.
+`db:seed` refuses Neon URLs unless `ALLOW_PROD_SEED=true` — it wipes data.
 
 **4. Start the app**
 
@@ -95,6 +100,9 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run doctor`       | Check env vars, AUTH_SECRET, database, Prisma setup     |
 | `npm run qa`           | Build → smoke test → keep server up for manual QA       |
 | `npm run smoke`        | Run smoke tests                                         |
+| `npm run db:up`        | Start local Docker Postgres                             |
+| `npm run db:down`      | Stop local Docker Postgres                              |
+| `npm run db:local`     | Up + migrate + seed local Docker DB                     |
 | `npm run db:migrate`   | Run Prisma migrations                                   |
 | `npm run db:seed`      | Seed demo data                                          |
 | `npm run db:seed:qa`   | Add idempotent QA edge-case data for the demo user      |
