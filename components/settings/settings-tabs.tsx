@@ -7,6 +7,7 @@ import { cn } from 'cn';
 import type { LoadingStyle } from '@/components/loading/loading-style';
 import { LoadingStyleForm } from '@/components/settings/loading-style-form';
 import { AppearanceForm } from '@/components/settings/appearance-form';
+import { ExportDataForm } from '@/components/settings/export-data-form';
 import { PasswordForm } from '@/components/settings/password-form';
 import { ProfileForm } from '@/components/settings/profile-form';
 
@@ -18,7 +19,7 @@ const tabs: Array<{
   description: string;
   icon: typeof UserRound;
 }> = [
-  { value: 'account', label: 'Account', description: 'Profile and password', icon: UserRound },
+  { value: 'account', label: 'Account', description: 'Profile, password, data', icon: UserRound },
   {
     value: 'appearance',
     label: 'Appearance',
@@ -89,6 +90,7 @@ export function SettingsTabs({ defaultTab, profileInitial, loadingStyle }: Setti
           <>
             <ProfileForm initial={profileInitial} />
             <PasswordForm />
+            <ExportDataForm email={profileInitial.email} />
           </>
         ) : (
           <>

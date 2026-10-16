@@ -146,3 +146,24 @@ describe('profile avatar API', () => {
     expect(cleared.json.user.image).toBeNull();
   });
 });
+
+describe('data export API', () => {
+  it('rejects unauthenticated export requests', async () => {
+    const anon = new ApiClient();
+    expect((await anon.get('/api/auth/export')).status).toBe(401);
+  });
+
+  it('exports the signed-in user data without secrets', async () => {
+    const email = uniqueEmail('vitest-export');
+    await ensureUser(email, 'Export Test');
+    const client = new ApiClient();
+    await client.login(email);
+    const response = await client.get('/api/auth/export');
+    expect(response.status).toBe(200);
+    expect(response.json.user.email).toBe(email);
+    expect(response.json.user.passwordHash).toBeUndefined();
+    expect(JSON.stringify(response.json)).not.toContain('passwordHash');
+    expect(Array.isArray(response.json.user.projects)).toBe(true);
+    expect(typeof response.json.exportedAt).toBe('string');
+  });
+});
