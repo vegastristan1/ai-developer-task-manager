@@ -12,6 +12,7 @@ interface ProfileFormProps {
   initial: {
     name: string;
     email: string;
+    image: string | null;
   };
 }
 
@@ -23,8 +24,10 @@ interface ApiIssue {
 export function ProfileForm({ initial }: ProfileFormProps) {
   const router = useRouter();
   const [name, setName] = useState(initial.name);
+  const [image, setImage] = useState(initial.image ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const preview = image.trim();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,7 +38,7 @@ export function ProfileForm({ initial }: ProfileFormProps) {
       const response = await fetch('/api/auth/me', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, image: image.trim() }),
       });
 
       const data = await response.json().catch(() => null);
@@ -93,6 +96,39 @@ export function ProfileForm({ initial }: ProfileFormProps) {
             </label>
             <Input id="profile-email" name="email" value={initial.email} readOnly disabled />
             <p className="text-muted-foreground text-xs">Your email address cannot be changed.</p>
+          </div>
+
+          <div className="grid gap-2">
+            <label htmlFor="profile-image" className="text-sm font-medium">
+              Avatar URL
+            </label>
+            <div className="flex items-center gap-3">
+              {preview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={preview}
+                  alt="Avatar preview"
+                  className="size-10 rounded-full object-cover"
+                />
+              ) : (
+                <span className="bg-muted text-muted-foreground flex size-10 items-center justify-center rounded-full text-sm font-medium">
+                  {(name.trim()[0] ?? initial.email[0] ?? '?').toUpperCase()}
+                </span>
+              )}
+              <Input
+                id="profile-image"
+                name="image"
+                value={image}
+                onChange={(event) => setImage(event.target.value)}
+                placeholder="https://…"
+                inputMode="url"
+                aria-invalid={!!errors.image}
+              />
+            </div>
+            {errors.image && <p className="text-destructive text-sm">{errors.image}</p>}
+            <p className="text-muted-foreground text-xs">
+              Paste an image link, or leave empty for initials.
+            </p>
           </div>
 
           <div className="border-t pt-4">

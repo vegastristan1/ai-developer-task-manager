@@ -17,6 +17,14 @@ export const profileSchema = z.object({
     .trim()
     .min(1, 'Name is required')
     .max(100, 'Name must be 100 characters or fewer'),
+  image: z
+    .string()
+    .trim()
+    .max(2048, 'Image URL must be 2048 characters or fewer')
+    .optional()
+    .refine((value) => value === undefined || value === '' || /^https?:\/\/\S+$/.test(value), {
+      message: 'Image must be a valid http(s) URL or empty',
+    }),
 });
 
 export const passwordChangeSchema = z

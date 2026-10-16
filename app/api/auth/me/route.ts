@@ -44,7 +44,12 @@ export async function PATCH(request: NextRequest) {
 
   const updated = await prisma.user.updateMany({
     where: { id: session.user.id },
-    data: { name: parsed.data.name },
+    data: {
+      name: parsed.data.name,
+      ...(parsed.data.image === undefined
+        ? {}
+        : { image: parsed.data.image === '' ? null : parsed.data.image }),
+    },
   });
 
   if (updated.count === 0) {
