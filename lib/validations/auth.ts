@@ -46,6 +46,10 @@ export const forgotPasswordSchema = z.object({
   email: z.email('Enter a valid email address').max(254),
 });
 
+export const deleteAccountSchema = z.object({
+  password: z.string().min(1, 'Current password is required').max(128),
+});
+
 export const resetPasswordSchema = z
   .object({
     token: z.string().min(1, 'Reset token is required').max(256),
@@ -63,3 +67,4 @@ export type ProfileInput = z.infer<typeof profileSchema>;
 export type PasswordChangeInput = z.infer<typeof passwordChangeSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;

@@ -7,6 +7,7 @@ import { cn } from 'cn';
 import type { LoadingStyle } from '@/components/loading/loading-style';
 import { LoadingStyleForm } from '@/components/settings/loading-style-form';
 import { AppearanceForm } from '@/components/settings/appearance-form';
+import { DangerZoneForm } from '@/components/settings/danger-zone-form';
 import { ExportDataForm } from '@/components/settings/export-data-form';
 import { ImportDataForm } from '@/components/settings/import-data-form';
 import { PasswordForm } from '@/components/settings/password-form';
@@ -93,6 +94,7 @@ export function SettingsTabs({ defaultTab, profileInitial, loadingStyle }: Setti
             <PasswordForm />
             <ExportDataForm email={profileInitial.email} />
             <ImportDataForm />
+            <DangerZoneForm email={profileInitial.email} />
           </>
         ) : (
           <>

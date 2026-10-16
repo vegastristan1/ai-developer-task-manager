@@ -344,3 +344,54 @@ describe('data import API', () => {
     expect(tasks[0]?.position).toBe(0);
   });
 });
+
+describe('delete account API', () => {
+  it('rejects unauthenticated deletions', async () => {
+    const anon = new ApiClient();
+    expect((await anon.request('DELETE', '/api/auth/me', { password: PASSWORD })).status).toBe(401);
+  });
+
+  it('rejects a wrong password and keeps the account', async () => {
+    const email = uniqueEmail('vitest-delete-wrong');
+    await ensureUser(email, 'Delete Wrong');
+    const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+    await prisma.project.create({ data: { name: 'Doomed', userId: user!.id } });
+
+    const client = new ApiClient();
+    await client.login(email);
+    const response = await client.request('DELETE', '/api/auth/me', {
+      password: 'not-the-password',
+    });
+    expect(response.status).toBe(401);
+
+    expect(await prisma.user.findUnique({ where: { email } })).not.toBeNull();
+    expect(await prisma.project.count({ where: { userId: user!.id } })).toBe(1);
+  });
+
+  it('rejects missing passwords', async () => {
+    const email = uniqueEmail('vitest-delete-empty');
+    await ensureUser(email, 'Delete Empty');
+    const client = new ApiClient();
+    await client.login(email);
+    expect((await client.request('DELETE', '/api/auth/me', {})).status).toBe(422);
+  });
+
+  it('deletes the account and cascades its projects', async () => {
+    const email = uniqueEmail('vitest-delete-ok');
+    await ensureUser(email, 'Delete Ok');
+    const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+    await prisma.project.create({ data: { name: 'Doomed', userId: user!.id } });
+
+    const client = new ApiClient();
+    await client.login(email);
+    const response = await client.request('DELETE', '/api/auth/me', { password: PASSWORD });
+    expect(response.status).toBe(200);
+
+    expect(await prisma.user.findUnique({ where: { email } })).toBeNull();
+    expect(await prisma.project.count({ where: { userId: user!.id } })).toBe(0);
+
+    const stale = new ApiClient();
+    await stale.login(email, PASSWORD);
+    expect((await stale.get('/api/auth/me')).status).toBe(401);
+  });
+});
