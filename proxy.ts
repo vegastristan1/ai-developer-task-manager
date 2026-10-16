@@ -13,7 +13,11 @@ function projectNotFound(request: NextRequest) {
 export default auth(async (req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth?.user;
-  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isAuthPage =
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/forgot-password' ||
+    pathname.startsWith('/reset-password');
 
   if (isLoggedIn && isAuthPage) {
     return NextResponse.redirect(new URL('/dashboard', req.url));

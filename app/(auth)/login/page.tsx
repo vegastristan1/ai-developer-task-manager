@@ -93,6 +93,14 @@ export default function LoginPage() {
             {isLoading && <Loader2 className="animate-spin" />}
             Sign in
           </Button>
+          <p className="text-center text-sm">
+            <Link
+              href="/forgot-password"
+              className="text-muted-foreground underline underline-offset-4"
+            >
+              Forgot your password?
+            </Link>
+          </p>
         </form>
         <div className="border-border mt-4 rounded-xl border p-4">
           <p className="flex items-center gap-1.5 text-sm font-medium">

@@ -42,7 +42,24 @@ export const passwordChangeSchema = z
     path: ['newPassword'],
   });
 
+export const forgotPasswordSchema = z.object({
+  email: z.email('Enter a valid email address').max(254),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, 'Reset token is required').max(256),
+    newPassword: z.string().min(8, 'New password must be at least 8 characters').max(128),
+    confirmPassword: z.string().min(1, 'Please confirm your new password').max(128),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
 export type PasswordChangeInput = z.infer<typeof passwordChangeSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
