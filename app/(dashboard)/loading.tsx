@@ -1,17 +1,16 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { cookies } from 'next/headers';
+import { InlineLoading } from '@/components/loading/inline-loading';
+import { LOADING_STYLE_COOKIE, parseLoadingStyle } from '@/components/loading/loading-style';
+import { PageLoading } from '@/components/loading/page-loading';
+import { SplashLoading } from '@/components/loading/splash-loading';
 
-export default function Loading() {
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-7 w-56" />
-        <Skeleton className="h-4 w-80" />
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-32 rounded-xl" />
-        ))}
-      </div>
-    </div>
-  );
+// The style is picked in Settings and remembered in a cookie.
+// Preview all three at /style-guide.
+export default async function Loading() {
+  const cookieStore = await cookies();
+  const style = parseLoadingStyle(cookieStore.get(LOADING_STYLE_COOKIE)?.value);
+
+  if (style === 'splash') return <SplashLoading />;
+  if (style === 'inline') return <InlineLoading />;
+  return <PageLoading />;
 }

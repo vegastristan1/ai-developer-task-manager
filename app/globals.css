@@ -128,3 +128,26 @@
     @apply font-sans;
   }
 }
+
+@theme {
+  --animate-shimmer: shimmer 1.8s infinite;
+  --animate-bar-fill: bar-fill 1.2s ease-in-out infinite;
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(200%);
+    }
+  }
+
+  @keyframes bar-fill {
+    0% {
+      transform: scaleX(0);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+}

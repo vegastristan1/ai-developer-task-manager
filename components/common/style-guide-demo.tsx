@@ -5,6 +5,7 @@ import { Bell, Sparkles, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/common/empty-state';
 import { ErrorState } from '@/components/common/error-state';
+import { InlineLoading, PageLoading, SplashLoading, TvLoader } from '@/components/loading';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -140,6 +141,43 @@ export function StyleGuideDemo() {
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-16 w-full" />
+          </div>
+        </div>
+      </Section>
+
+      <Section title="TV loading styles" description="Pick one to use for route loading.">
+        <div className="flex w-full flex-col gap-6">
+          <div className="flex items-end gap-6">
+            <div className="flex flex-col items-center gap-1.5">
+              <TvLoader size="sm" />
+              <span className="text-muted-foreground text-xs">sm</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5">
+              <TvLoader size="md" />
+              <span className="text-muted-foreground text-xs">md</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5">
+              <TvLoader size="lg" />
+              <span className="text-muted-foreground text-xs">lg</span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-medium">Style 1 — Page (mark + skeletons)</p>
+            <div className="rounded-xl border p-4">
+              <PageLoading />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-medium">Style 2 — Splash (full-viewport mark + app name)</p>
+            <div className="rounded-xl border p-4">
+              <SplashLoading />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-medium">Style 3 — Inline (mark only)</p>
+            <div className="rounded-xl border p-4">
+              <InlineLoading />
+            </div>
           </div>
         </div>
       </Section>
