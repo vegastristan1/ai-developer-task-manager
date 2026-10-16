@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { FolderKanban, Plus } from 'lucide-react';
@@ -23,6 +24,7 @@ interface ProjectsPageProps {
 }
 
 export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
+  await connection();
   const user = await getSessionUser();
 
   if (!user) {

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
 import { ChatShell } from '@/components/chat/chat-shell';
 import { PageHeader } from '@/components/common/page-header';
@@ -15,6 +16,7 @@ interface ChatPageProps {
 }
 
 export default async function ChatPage({ searchParams }: ChatPageProps) {
+  await connection();
   const user = await getSessionUser();
   if (!user) {
     redirect('/login');

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import { notFound, redirect } from 'next/navigation';
 import { PageHeader } from '@/components/common/page-header';
 import { SprintForm } from '@/components/sprints/sprint-form';
@@ -18,6 +19,7 @@ function toInputDate(value: Date | string): string {
 }
 
 export default async function EditSprintPage({ params }: EditSprintPageProps) {
+  await connection();
   const user = await getSessionUser();
   if (!user) {
     redirect('/login');

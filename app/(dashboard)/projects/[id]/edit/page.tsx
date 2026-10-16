@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import { notFound, redirect } from 'next/navigation';
 import { PageHeader } from '@/components/common/page-header';
 import { ProjectForm } from '@/components/projects/project-form';
@@ -14,6 +15,7 @@ interface EditProjectPageProps {
 }
 
 export default async function EditProjectPage({ params }: EditProjectPageProps) {
+  await connection();
   const user = await getSessionUser();
 
   if (!user) {

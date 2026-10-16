@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { CommandPalette } from '@/components/layout/command-palette';
@@ -9,6 +10,7 @@ import { getSessionUser } from '@/lib/auth/session';
 export const instant = false;
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
+  await connection();
   const user = await getSessionUser();
 
   if (!user) {

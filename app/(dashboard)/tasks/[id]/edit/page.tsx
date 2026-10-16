@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import { notFound, redirect } from 'next/navigation';
 import { PageHeader } from '@/components/common/page-header';
 import { TaskForm } from '@/components/tasks/task-form';
@@ -21,6 +22,7 @@ function toDateString(value: Date | null): string {
 }
 
 export default async function EditTaskPage({ params }: EditTaskPageProps) {
+  await connection();
   const user = await getSessionUser();
   if (!user) {
     redirect('/login');

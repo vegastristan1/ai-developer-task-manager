@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { CheckCircle2, Pencil, ShieldAlert } from 'lucide-react';
@@ -35,6 +36,7 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 }
 
 export default async function TaskDetailsPage({ params }: TaskPageProps) {
+  await connection();
   const user = await getSessionUser();
   if (!user) {
     redirect('/login');

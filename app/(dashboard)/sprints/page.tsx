@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Plus, Timer } from 'lucide-react';
@@ -22,6 +23,7 @@ interface SprintsPageProps {
 }
 
 export default async function SprintsPage({ searchParams }: SprintsPageProps) {
+  await connection();
   const user = await getSessionUser();
   if (!user) {
     redirect('/login');

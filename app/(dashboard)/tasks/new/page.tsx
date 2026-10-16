@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { FolderKanban, Plus } from 'lucide-react';
@@ -14,6 +15,7 @@ export const metadata: Metadata = { title: 'New task' };
 export const instant = false;
 
 export default async function NewTaskPage() {
+  await connection();
   const user = await getSessionUser();
   if (!user) {
     redirect('/login');

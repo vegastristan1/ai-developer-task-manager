@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ListTodo, Plus } from 'lucide-react';
@@ -41,6 +42,7 @@ function oneOf(values: readonly string[], value?: string): string | undefined {
 }
 
 export default async function TasksPage({ searchParams }: TasksPageProps) {
+  await connection();
   const user = await getSessionUser();
   if (!user) {
     redirect('/login');

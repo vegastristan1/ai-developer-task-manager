@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
 import {
   AlertTriangle,
@@ -72,6 +73,7 @@ const areaColors: Record<TechnicalAreaValue | 'NONE', string> = {
 };
 
 export default async function DashboardPage() {
+  await connection();
   const user = await getSessionUser();
   if (!user) {
     redirect('/login');
