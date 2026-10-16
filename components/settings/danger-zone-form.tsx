@@ -4,6 +4,16 @@ import { useState } from 'react';
 import { signOut } from 'next-auth/react';
 import { Loader2, TriangleAlert } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,6 +23,7 @@ export function DangerZoneForm({ email }: { email: string }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const confirmed = confirmation.trim().toLowerCase() === email.trim().toLowerCase();
   const canDelete = confirmed && password.length > 0 && !isDeleting;
@@ -41,6 +52,7 @@ export function DangerZoneForm({ email }: { email: string }) {
         return;
       }
 
+      setConfirmOpen(false);
       toast.success('Account deleted');
       await signOut({ callbackUrl: '/login' });
     } catch {
@@ -87,12 +99,45 @@ export function DangerZoneForm({ email }: { email: string }) {
             autoComplete="current-password"
           />
         </div>
-        {error && <p className="text-destructive text-sm">{error}</p>}
+        {error && !confirmOpen && <p className="text-destructive text-sm">{error}</p>}
         <div>
-          <Button type="button" variant="destructive" disabled={!canDelete} onClick={handleDelete}>
-            {isDeleting && <Loader2 className="animate-spin" />}
-            Delete my account
-          </Button>
+          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={!canDelete}
+              onClick={() => {
+                setError(null);
+                setConfirmOpen(true);
+              }}
+            >
+              Delete my account
+            </Button>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {email} and all of its projects, tasks, sprints, labels, and AI conversations will
+                  be permanently deleted. This cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              {error && <p className="text-destructive text-sm">{error}</p>}
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  variant="destructive"
+                  disabled={isDeleting}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void handleDelete();
+                  }}
+                >
+                  {isDeleting && <Loader2 className="animate-spin" />}
+                  Yes, delete my account
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardContent>
     </Card>

@@ -46,6 +46,34 @@ test.describe('settings', () => {
   });
 });
 
+test.describe('delete account danger zone', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginViaUi(page);
+    await page.goto('/settings');
+  });
+
+  test('keeps delete disabled until email and password are entered', async ({ page }) => {
+    const deleteButton = page.getByRole('button', { name: 'Delete my account', exact: true });
+    await expect(deleteButton).toBeDisabled();
+    await page.fill('#delete-confirm', 'alex@example.com');
+    await expect(deleteButton).toBeDisabled();
+    await page.fill('#delete-password', 'password123');
+    await expect(deleteButton).toBeEnabled();
+  });
+
+  test('cancel in the confirm dialog keeps the account', async ({ page }) => {
+    await page.fill('#delete-confirm', 'alex@example.com');
+    await page.fill('#delete-password', 'password123');
+    await page.getByRole('button', { name: 'Delete my account', exact: true }).click();
+    const dialog = page.getByRole('alertdialog');
+    await expect(dialog.getByText('Delete your account?')).toBeVisible();
+    await expect(dialog.getByText('cannot be undone', { exact: false })).toBeVisible();
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    await expect(page.getByText('Delete your account?')).toBeHidden();
+    await expect(page).toHaveURL(/\/settings$/);
+  });
+});
+
 test.describe('forgot and reset password pages', () => {
   test('sends a reset link request and shows confirmation', async ({ page }) => {
     await page.goto('/forgot-password');
