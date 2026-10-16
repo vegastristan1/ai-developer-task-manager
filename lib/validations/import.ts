@@ -28,7 +28,9 @@ const taskSchema = z.object({
   estimatedEffort: z.string().max(100).nullable(),
   actualEffort: z.string().max(100).nullable(),
   dueDate: z.string().nullable(),
-  position: z.number(),
+  // `position` and `dependencies` were added to exports later — old files omit
+  // them, so default instead of rejecting.
+  position: z.number().optional().default(0),
   implementationPlan: z.string().max(50000).nullable(),
   acceptanceCriteria: z.unknown(),
   technicalNotes: z.string().max(20000).nullable(),
@@ -36,8 +38,14 @@ const taskSchema = z.object({
   parentTaskId: z.string().nullable(),
   labels: z
     .array(z.object({ label: z.object({ name: z.string().min(1), color: z.string() }) }))
-    .max(50),
-  dependencies: z.array(z.object({ dependsOnId: z.string() })).max(100),
+    .max(50)
+    .optional()
+    .default([]),
+  dependencies: z
+    .array(z.object({ dependsOnId: z.string() }))
+    .max(100)
+    .optional()
+    .default([]),
 });
 
 const projectSchema = z.object({

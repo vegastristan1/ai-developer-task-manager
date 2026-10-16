@@ -89,7 +89,7 @@ export async function GET() {
   }
 
   return NextResponse.json(
-    { exportedAt: new Date().toISOString(), user },
+    { version: 1, exportedAt: new Date().toISOString(), user },
     {
       headers: {
         'Content-Disposition': `attachment; filename="workspace-export-${user.id}.json"`,

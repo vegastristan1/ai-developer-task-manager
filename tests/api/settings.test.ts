@@ -284,4 +284,63 @@ describe('data import API', () => {
     await prisma.aIConversation.deleteMany({ where: { id: conversation.id } });
     await prisma.project.deleteMany({ where: { id: project.id } });
   });
+
+  it('accepts old-shape exports missing position and dependencies', async () => {
+    const email = uniqueEmail('vitest-import-old');
+    await ensureUser(email, 'Import Old');
+    const client = new ApiClient();
+    await client.login(email);
+    const legacy = {
+      exportedAt: new Date(0).toISOString(),
+      user: {
+        projects: [
+          {
+            id: 'old-project-1',
+            name: 'Legacy Project',
+            description: null,
+            repositoryUrl: null,
+            technologyStack: [],
+            status: 'ACTIVE',
+            labels: [],
+            sprints: [],
+            tasks: [
+              {
+                id: 'old-task-1',
+                title: 'Legacy task',
+                description: null,
+                status: 'TODO',
+                priority: 'MEDIUM',
+                type: 'FEATURE',
+                technicalArea: null,
+                complexity: null,
+                estimatedEffort: null,
+                actualEffort: null,
+                dueDate: null,
+                implementationPlan: null,
+                acceptanceCriteria: null,
+                technicalNotes: null,
+                sprintId: null,
+                parentTaskId: null,
+              },
+            ],
+          },
+        ],
+        conversations: [],
+      },
+    };
+    const response = await client.post('/api/auth/import', { data: legacy });
+    expect(response.status).toBe(200);
+    expect(response.json.imported).toMatchObject({ projects: 1, tasks: 1 });
+
+    const targetUser = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    const tasks = await prisma.task.findMany({
+      where: { project: { userId: targetUser!.id } },
+      select: { title: true, position: true },
+    });
+    expect(tasks).toHaveLength(1);
+    expect(tasks[0]?.position).toBe(0);
+  });
 });
