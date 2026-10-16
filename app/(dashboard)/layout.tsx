@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { cookies } from 'next/headers';
 import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
 import { AppSidebar } from '@/components/layout/app-sidebar';
@@ -17,8 +18,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     redirect('/login');
   }
 
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false';
+
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar
         user={{
           name: user.name,

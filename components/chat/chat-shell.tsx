@@ -2,9 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { MessagesSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { ChatWindow, type UiMessage } from '@/components/chat/chat-window';
-import { ConversationSidebar } from '@/components/chat/conversation-sidebar';
+import {
+  ConversationControls,
+  ConversationList,
+  ConversationSidebar,
+} from '@/components/chat/conversation-sidebar';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import type { ChatAction } from '@/lib/ai/actions';
 import type { ConversationDetail, ConversationSummary } from '@/services/ai/chat';
 
@@ -41,6 +48,7 @@ export function ChatShell({ conversations, projects, active, initialProjectId }:
   const [isStreaming, setIsStreaming] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [dismissed, setDismissed] = useState<Record<string, boolean>>({});
+  const [listOpen, setListOpen] = useState(false);
 
   function chatUrl(projectId: string | null): string {
     return projectId ? `/chat?p=${projectId}` : '/chat';
@@ -59,6 +67,7 @@ export function ChatShell({ conversations, projects, active, initialProjectId }:
 
   function handleSelectConversation(id: string) {
     if (isStreaming) return;
+    setListOpen(false);
     router.push(`/chat?c=${id}`);
   }
 
@@ -193,7 +202,28 @@ export function ChatShell({ conversations, projects, active, initialProjectId }:
   }
 
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-[17rem_1fr]">
+    <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[17rem_minmax(0,1fr)]">
+      <div className="grid gap-2 lg:hidden">
+        <ConversationControls
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          isStreaming={isStreaming}
+          onSelectProject={handleSelectProject}
+          onNewChat={startNewChat}
+          className="grid-cols-2 items-center [&>button]:w-full"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setListOpen(true)}
+          aria-label={`Open conversations (${conversations.length})`}
+        >
+          <MessagesSquare />
+          Conversations
+          <span className="text-muted-foreground tabular-nums">({conversations.length})</span>
+        </Button>
+      </div>
       <ConversationSidebar
         conversations={conversations}
         activeId={activeId}
@@ -204,7 +234,22 @@ export function ChatShell({ conversations, projects, active, initialProjectId }:
         onNewChat={startNewChat}
         onSelect={handleSelectConversation}
         onDelete={handleDelete}
+        className="hidden lg:grid"
       />
+      <Sheet open={listOpen} onOpenChange={setListOpen}>
+        <SheetContent side="left" className="w-80 overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Conversations</SheetTitle>
+          </SheetHeader>
+          <ConversationList
+            conversations={conversations}
+            activeId={activeId}
+            isStreaming={isStreaming}
+            onSelect={handleSelectConversation}
+            onDelete={handleDelete}
+          />
+        </SheetContent>
+      </Sheet>
       <ChatWindow
         messages={messages}
         isStreaming={isStreaming}

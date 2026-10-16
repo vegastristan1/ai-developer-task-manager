@@ -30,9 +30,11 @@ export function ActionCard({
 
       {action.type === 'create_task' ? (
         <div className="grid gap-1">
-          <p className="text-sm font-medium">{action.params.title}</p>
+          <p className="text-sm font-medium wrap-break-word">{action.params.title}</p>
           {action.params.description && (
-            <p className="text-muted-foreground text-xs">{action.params.description}</p>
+            <p className="text-muted-foreground text-xs wrap-break-word">
+              {action.params.description}
+            </p>
           )}
           <div className="flex flex-wrap gap-1.5">
             <Badge variant="outline">New task</Badge>
@@ -43,7 +45,9 @@ export function ActionCard({
         </div>
       ) : (
         <div className="grid gap-1">
-          <p className="text-sm font-medium">{action.params.taskTitle ?? action.params.taskId}</p>
+          <p className="text-sm font-medium wrap-break-word">
+            {action.params.taskTitle ?? action.params.taskId}
+          </p>
           <div className="flex flex-wrap gap-1.5">
             <Badge variant="outline">Status → {taskStatusLabels[action.params.status]}</Badge>
           </div>

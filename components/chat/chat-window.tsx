@@ -58,8 +58,8 @@ export function ChatWindow({
   }
 
   return (
-    <div className="border-border flex h-[calc(100vh-15rem)] min-h-96 flex-col overflow-hidden rounded-lg border">
-      <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-4">
+    <div className="border-border flex h-[calc(100dvh-15rem)] min-h-96 min-w-0 flex-col overflow-hidden rounded-lg border">
+      <div ref={scrollRef} className="min-w-0 flex-1 space-y-4 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
             <MessageSquare className="text-muted-foreground size-8" />
@@ -93,7 +93,7 @@ export function ChatWindow({
             return (
               <div key={message.id} className={isUser ? 'flex justify-end' : 'flex justify-start'}>
                 <div
-                  className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                  className={`max-w-[85%] min-w-0 rounded-lg px-3 py-2 text-sm ${
                     isUser
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted/40 border-border border'
@@ -105,7 +105,7 @@ export function ChatWindow({
                       Assistant
                     </p>
                   )}
-                  <p className="whitespace-pre-wrap">
+                  <p className="wrap-break-word whitespace-pre-wrap">
                     {cleanContent}
                     {isStreaming &&
                       messageIndex === messages.length - 1 &&
@@ -141,7 +141,7 @@ export function ChatWindow({
           event.preventDefault();
           submit();
         }}
-        className="border-border flex items-end gap-2 border-t p-3"
+        className="border-border flex items-center gap-2 border-t p-3"
       >
         <Textarea
           value={input}
@@ -160,12 +160,12 @@ export function ChatWindow({
         />
         <Button
           type="submit"
-          size="icon"
+          size="icon-lg"
           className="shrink-0"
           disabled={isStreaming || input.trim().length === 0}
           aria-label="Send message"
         >
-          {isStreaming ? <Loader2 className="animate-spin" /> : <Send />}
+          {isStreaming ? <Loader2 className="size-5 animate-spin" /> : <Send className="size-5" />}
         </Button>
       </form>
     </div>
