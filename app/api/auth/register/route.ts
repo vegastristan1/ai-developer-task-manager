@@ -5,6 +5,7 @@ import { readJsonBody } from '@/lib/security/body';
 import { clientIp } from '@/lib/security/rate-limit';
 import { rateLimitResponse } from '@/lib/security/responses';
 import { registerSchema } from '@/lib/validations/auth';
+import { isBootstrapAdmin } from '@/lib/auth/bootstrap';
 
 const REGISTER_WINDOW_MS = 60 * 60 * 1000;
 const REGISTER_LIMIT_PER_IP = 50;
@@ -41,12 +42,23 @@ export async function POST(request: Request) {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
+  const bootstrap = isBootstrapAdmin(email);
   const user = await prisma.user.create({
-    data: { email, name, passwordHash },
+    data: {
+      email,
+      name,
+      passwordHash,
+      ...(bootstrap
+        ? { approved: true, approvedAt: new Date(), isAdmin: true }
+        : {}),
+    },
   });
 
   return NextResponse.json(
-    { user: { id: user.id, email: user.email, name: user.name }, pendingApproval: true },
+    {
+      user: { id: user.id, email: user.email, name: user.name },
+      pendingApproval: !bootstrap,
+    },
     { status: 201 },
   );
 }

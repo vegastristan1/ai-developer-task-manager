@@ -3,6 +3,7 @@ import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db/prisma';
 import { loginSchema } from '@/lib/validations/auth';
+import { isBootstrapAdmin } from '@/lib/auth/bootstrap';
 
 class PendingApprovalError extends CredentialsSignin {
   code = 'pending_approval';
@@ -51,6 +52,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!valid) return null;
 
         if (!user.approved) {
+          // Bootstrap admins never need manual approval. Self-heal accounts
+          // that were registered before this exemption existed.
+          if (isBootstrapAdmin(user.email)) {
+            const promoted = await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                approved: true,
+                approvedAt: user.approvedAt ?? new Date(),
+                isAdmin: true,
+              },
+            });
+            return {
+              id: promoted.id,
+              email: promoted.email,
+              name: promoted.name,
+              image: promoted.image,
+              isAdmin: true,
+            };
+          }
           throw new PendingApprovalError();
         }
 
