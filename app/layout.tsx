@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { ThemeProvider } from '@/components/layout/theme-provider';
+import { SessionProvider } from '@/components/auth/session-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
@@ -43,7 +44,9 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           enableSystem
           disableTransitionOnChange
         >
-          <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+          <TooltipProvider delayDuration={0}>
+            <SessionProvider>{children}</SessionProvider>
+          </TooltipProvider>
           <Toaster position="top-right" richColors closeButton />
         </ThemeProvider>
         {isVercel && <Analytics />}

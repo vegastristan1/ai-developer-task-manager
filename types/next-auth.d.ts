@@ -15,5 +15,9 @@ declare module '@auth/core/jwt' {
     isAdmin?: boolean;
     /** Timestamp of the last "user still exists" check (throttled to once per hour). */
     v?: number;
+    /** Session version copied from User.tokenVersion at login; bumped to sign out everywhere. */
+    tv?: number;
+    /** Timestamp of the last token-version check (throttled to once per minute). */
+    vv?: number;
   }
 }

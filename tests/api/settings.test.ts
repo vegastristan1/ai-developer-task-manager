@@ -395,3 +395,32 @@ describe('delete account API', () => {
     expect((await stale.get('/api/auth/me')).status).toBe(401);
   });
 });
+
+describe('sign out everywhere API', () => {
+  it('rejects unauthenticated requests', async () => {
+    const anon = new ApiClient();
+    expect((await anon.post('/api/auth/sessions/invalidate', {})).status).toBe(401);
+  });
+
+  it('bumps the session version and keeps the current login working', async () => {
+    const email = uniqueEmail('vitest-signout-all');
+    await ensureUser(email, 'Signout All');
+    const before = await prisma.user.findUnique({
+      where: { email },
+      select: { tokenVersion: true },
+    });
+
+    const client = new ApiClient();
+    await client.login(email);
+    const first = await client.post('/api/auth/sessions/invalidate', {});
+    expect(first.status).toBe(200);
+    const second = await client.post('/api/auth/sessions/invalidate', {});
+    expect(second.status).toBe(200);
+    expect(second.json.tokenVersion).toBe((before?.tokenVersion ?? 0) + 2);
+
+    // A fresh login picks up the new version and works.
+    const fresh = new ApiClient();
+    await fresh.login(email);
+    expect((await fresh.get('/api/auth/me')).status).toBe(200);
+  });
+});
