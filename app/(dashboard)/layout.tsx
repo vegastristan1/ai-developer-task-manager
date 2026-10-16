@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { ChatBubble } from '@/components/chat/chat-bubble';
 import { CommandPalette } from '@/components/layout/command-palette';
 import { TopNav } from '@/components/layout/top-nav';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -32,6 +33,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       <SidebarInset>
         <TopNav />
         <CommandPalette />
+        <ChatBubble />
         <div className="flex min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">{children}</div>
       </SidebarInset>
     </SidebarProvider>

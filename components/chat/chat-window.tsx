@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, MessageSquare, Send, Sparkles } from 'lucide-react';
+import { cn } from 'cn';
 import { ActionCard } from '@/components/chat/action-card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +23,7 @@ interface ChatWindowProps {
   onSend: (text: string) => void;
   onApprove: (action: ChatAction) => void;
   onDismiss: (key: string) => void;
+  className?: string;
 }
 
 const STARTERS = [
@@ -39,6 +41,7 @@ export function ChatWindow({
   onSend,
   onApprove,
   onDismiss,
+  className,
 }: ChatWindowProps) {
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -58,7 +61,12 @@ export function ChatWindow({
   }
 
   return (
-    <div className="border-border flex h-[calc(100dvh-15rem)] min-h-96 min-w-0 flex-col overflow-hidden rounded-lg border">
+    <div
+      className={cn(
+        'border-border flex h-[calc(100dvh-15rem)] min-h-96 min-w-0 flex-col overflow-hidden rounded-lg border',
+        className,
+      )}
+    >
       <div ref={scrollRef} className="min-w-0 flex-1 space-y-4 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
