@@ -5,8 +5,11 @@ import { getReminders } from '@/lib/reminders';
 
 /**
  * Scheduler endpoint for digest mailouts (Vercel Cron, GitHub Actions, ...).
- * Guarded by CRON_SECRET. Optional ?email= targets a single account,
- * otherwise every approved user is mailed. Never throws per-user failures.
+ * Guarded by CRON_SECRET, sent either as `Authorization: Bearer <secret>`
+ * (Vercel Cron injects that header automatically) or as `?secret=`.
+ * Optional ?email= targets a single account, otherwise every approved user
+ * is mailed. Users with nothing to report are skipped — the weekly cron must
+ * not nag clean inboxes. Never throws per-user failures.
  */
 export async function GET(request: Request) {
   const secret = process.env['CRON_SECRET'];
@@ -15,7 +18,13 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  if (url.searchParams.get('secret') !== secret) {
+  const bearer =
+    request.headers
+      .get('authorization')
+      ?.replace(/^Bearer\s+/i, '')
+      .trim() || null;
+  const provided = url.searchParams.get('secret')?.trim() || bearer;
+  if (provided !== secret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -30,6 +39,11 @@ export async function GET(request: Request) {
   for (const user of users) {
     try {
       const reminders = await getReminders(user.id);
+      const total = reminders.counts.overdue + reminders.counts.dueSoon + reminders.counts.blocked;
+      if (total === 0) {
+        results.push({ email: user.email, total: 0, delivered: 'skipped' });
+        continue;
+      }
       const sent = await sendDigestEmail(user.email, user.name, reminders);
       results.push({ email: user.email, total: sent.total, delivered: sent.delivered });
     } catch (error) {

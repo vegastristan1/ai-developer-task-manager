@@ -155,6 +155,19 @@ daily at 06:00 UTC (and on demand via **Run workflow**). It is skipped until you
 `SMOKE_BASE_URL` repository variable under **Settings → Secrets and variables → Actions →
 Variables**, e.g. `https://your-app.vercel.app`.
 
+### Weekly digest email
+
+`vercel.json` schedules `GET /api/cron/digest` for every Sunday at 09:00 UTC. It emails
+each approved user their reminders digest (overdue / due soon / blocked); users with
+nothing to report are skipped. Set `CRON_SECRET` in Vercel under **Settings →
+Environment Variables → Production** and redeploy — Vercel sends it automatically as
+`Authorization: Bearer <CRON_SECRET>`, and without it the endpoint responds `503`.
+The same secret works for manual runs:
+
+```bash
+curl "https://your-app.vercel.app/api/cron/digest?secret=$CRON_SECRET&email=you@example.com"
+```
+
 ## License
 
 Built as a portfolio project.

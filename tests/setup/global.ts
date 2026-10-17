@@ -7,6 +7,9 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PORT = Number(process.env.TEST_PORT ?? 4100);
 const BASE_URL = `http://localhost:${PORT}`;
 
+/** Shared with the digest scheduler tests — keep in sync with the spawned server env. */
+export const TEST_CRON_SECRET = 'vitest-cron-secret';
+
 let server: ChildProcess | null = null;
 
 async function isUp(): Promise<boolean> {
@@ -61,6 +64,9 @@ export default async function globalSetup(): Promise<(() => void) | undefined> {
       OPENAI_API_KEY: '',
       OPENAI_BASE_URL: '',
       OPENAI_MODEL: '',
+      // CRON_SECRET is not in .env.local, so inject a known test value to keep
+      // the digest scheduler auth tests deterministic.
+      CRON_SECRET: TEST_CRON_SECRET,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
