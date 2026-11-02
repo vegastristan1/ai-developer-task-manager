@@ -111,108 +111,116 @@ export function SprintForm({ mode, initial, projects }: SprintFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="grid gap-5">
-          {mode === 'create' && (
+        <form onSubmit={handleSubmit} className="grid gap-5" aria-busy={isSubmitting}>
+          <fieldset disabled={isSubmitting} className="contents">
+            {mode === 'create' && (
+              <div className="grid gap-2">
+                <span className="text-sm font-medium">Project</span>
+                <Select value={projectId} onValueChange={setProjectId}>
+                  <SelectTrigger className="w-full" aria-label="Project">
+                    <SelectValue placeholder="Select a project" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(projects ?? []).map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.projectId && <p className="text-destructive text-sm">{errors.projectId}</p>}
+                {(projects ?? []).length === 0 && (
+                  <p className="text-muted-foreground text-sm">
+                    No projects yet — create a project before adding sprints.
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="grid gap-2">
-              <span className="text-sm font-medium">Project</span>
-              <Select value={projectId} onValueChange={setProjectId}>
-                <SelectTrigger className="w-full" aria-label="Project">
-                  <SelectValue placeholder="Select a project" />
-                </SelectTrigger>
-                <SelectContent>
-                  {(projects ?? []).map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.projectId && <p className="text-destructive text-sm">{errors.projectId}</p>}
-              {(projects ?? []).length === 0 && (
-                <p className="text-muted-foreground text-sm">
-                  No projects yet — create a project before adding sprints.
-                </p>
-              )}
-            </div>
-          )}
-
-          <div className="grid gap-2">
-            <label htmlFor="name" className="text-sm font-medium">
-              Name
-            </label>
-            <Input
-              id="name"
-              name="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Sprint 1"
-              aria-invalid={!!errors.name}
-              required
-            />
-            {errors.name && <p className="text-destructive text-sm">{errors.name}</p>}
-          </div>
-
-          <div className="grid gap-2">
-            <label htmlFor="goal" className="text-sm font-medium">
-              Goal
-            </label>
-            <Textarea
-              id="goal"
-              name="goal"
-              value={goal}
-              onChange={(event) => setGoal(event.target.value)}
-              placeholder="What should this sprint achieve?"
-              rows={3}
-              aria-invalid={!!errors.goal}
-            />
-            {errors.goal && <p className="text-destructive text-sm">{errors.goal}</p>}
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <label htmlFor="startDate" className="text-sm font-medium">
-                Start date
+              <label htmlFor="name" className="text-sm font-medium">
+                Name
               </label>
               <Input
-                id="startDate"
-                name="startDate"
-                type="date"
-                value={startDate}
-                onChange={(event) => setStartDate(event.target.value)}
-                aria-invalid={!!errors.startDate}
+                id="name"
+                name="name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Sprint 1"
+                aria-invalid={!!errors.name}
                 required
               />
-              {errors.startDate && <p className="text-destructive text-sm">{errors.startDate}</p>}
+              {errors.name && <p className="text-destructive text-sm">{errors.name}</p>}
             </div>
 
             <div className="grid gap-2">
-              <label htmlFor="endDate" className="text-sm font-medium">
-                End date
+              <label htmlFor="goal" className="text-sm font-medium">
+                Goal
               </label>
-              <Input
-                id="endDate"
-                name="endDate"
-                type="date"
-                value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
-                aria-invalid={!!errors.endDate}
-                required
+              <Textarea
+                id="goal"
+                name="goal"
+                value={goal}
+                onChange={(event) => setGoal(event.target.value)}
+                placeholder="What should this sprint achieve?"
+                rows={3}
+                aria-invalid={!!errors.goal}
               />
-              {errors.endDate && <p className="text-destructive text-sm">{errors.endDate}</p>}
+              {errors.goal && <p className="text-destructive text-sm">{errors.goal}</p>}
             </div>
-          </div>
 
-          <div className="flex items-center gap-2 border-t pt-4">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="animate-spin" />}
-              {mode === 'create' ? 'Create sprint' : 'Save changes'}
-            </Button>
-            <Button type="button" variant="ghost" asChild>
-              <Link href={mode === 'edit' && initial ? `/sprints/${initial.id}` : '/sprints'}>
-                Cancel
-              </Link>
-            </Button>
-          </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-2">
+                <label htmlFor="startDate" className="text-sm font-medium">
+                  Start date
+                </label>
+                <Input
+                  id="startDate"
+                  name="startDate"
+                  type="date"
+                  value={startDate}
+                  onChange={(event) => setStartDate(event.target.value)}
+                  aria-invalid={!!errors.startDate}
+                  required
+                />
+                {errors.startDate && <p className="text-destructive text-sm">{errors.startDate}</p>}
+              </div>
+
+              <div className="grid gap-2">
+                <label htmlFor="endDate" className="text-sm font-medium">
+                  End date
+                </label>
+                <Input
+                  id="endDate"
+                  name="endDate"
+                  type="date"
+                  value={endDate}
+                  onChange={(event) => setEndDate(event.target.value)}
+                  aria-invalid={!!errors.endDate}
+                  required
+                />
+                {errors.endDate && <p className="text-destructive text-sm">{errors.endDate}</p>}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 border-t pt-4">
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="animate-spin" />}
+                {isSubmitting
+                  ? mode === 'create'
+                    ? 'Creating sprint...'
+                    : 'Saving changes...'
+                  : mode === 'create'
+                    ? 'Create sprint'
+                    : 'Save changes'}
+              </Button>
+              <Button type="button" variant="ghost" asChild disabled={isSubmitting}>
+                <Link href={mode === 'edit' && initial ? `/sprints/${initial.id}` : '/sprints'}>
+                  Cancel
+                </Link>
+              </Button>
+            </div>
+          </fieldset>
         </form>
       </CardContent>
     </Card>

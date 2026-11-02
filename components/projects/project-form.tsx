@@ -129,141 +129,151 @@ export function ProjectForm({ mode, initial }: ProjectFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="grid gap-5">
-          <div className="grid gap-2">
-            <label htmlFor="name" className="text-sm font-medium">
-              Name
-            </label>
-            <Input
-              id="name"
-              name="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="AI Developer Task Manager"
-              aria-invalid={!!errors.name}
-              required
-            />
-            {errors.name && <p className="text-destructive text-sm">{errors.name}</p>}
-          </div>
+        <form onSubmit={handleSubmit} className="grid gap-5" aria-busy={isSubmitting}>
+          <fieldset disabled={isSubmitting} className="contents">
+            <div className="grid gap-2">
+              <label htmlFor="name" className="text-sm font-medium">
+                Name
+              </label>
+              <Input
+                id="name"
+                name="name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="AI Developer Task Manager"
+                aria-invalid={!!errors.name}
+                required
+              />
+              {errors.name && <p className="text-destructive text-sm">{errors.name}</p>}
+            </div>
 
-          <div className="grid gap-2">
-            <label htmlFor="description" className="text-sm font-medium">
-              Description
-            </label>
-            <Textarea
-              id="description"
-              name="description"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="What is this project about?"
-              rows={4}
-              aria-invalid={!!errors.description}
-            />
-            {errors.description && <p className="text-destructive text-sm">{errors.description}</p>}
-          </div>
-
-          <div className="grid gap-2">
-            <label htmlFor="repositoryUrl" className="text-sm font-medium">
-              Repository URL
-            </label>
-            <Input
-              id="repositoryUrl"
-              name="repositoryUrl"
-              type="url"
-              value={repositoryUrl}
-              onChange={(event) => setRepositoryUrl(event.target.value)}
-              placeholder="https://github.com/you/project"
-              aria-invalid={!!errors.repositoryUrl}
-            />
-            {errors.repositoryUrl && (
-              <p className="text-destructive text-sm">{errors.repositoryUrl}</p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <span className="text-sm font-medium">Technology stack</span>
-            <div className="flex flex-wrap gap-2">
-              {technologyStack.map((technology) => (
-                <span
-                  key={technology}
-                  className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium"
-                >
-                  {technology}
-                  <button
-                    type="button"
-                    onClick={() => removeTechnology(technology)}
-                    aria-label={`Remove ${technology}`}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </span>
-              ))}
-              {technologyStack.length === 0 && (
-                <span className="text-muted-foreground text-xs">No technologies added yet</span>
+            <div className="grid gap-2">
+              <label htmlFor="description" className="text-sm font-medium">
+                Description
+              </label>
+              <Textarea
+                id="description"
+                name="description"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder="What is this project about?"
+                rows={4}
+                aria-invalid={!!errors.description}
+              />
+              {errors.description && (
+                <p className="text-destructive text-sm">{errors.description}</p>
               )}
             </div>
-            <div className="flex gap-2">
+
+            <div className="grid gap-2">
+              <label htmlFor="repositoryUrl" className="text-sm font-medium">
+                Repository URL
+              </label>
               <Input
-                value={techInput}
-                onChange={(event) => setTechInput(event.target.value)}
-                onKeyDown={handleTechnologyKeyDown}
-                placeholder="Add a technology, then press Enter"
-                aria-invalid={!!errors.technologyStack}
+                id="repositoryUrl"
+                name="repositoryUrl"
+                type="url"
+                value={repositoryUrl}
+                onChange={(event) => setRepositoryUrl(event.target.value)}
+                placeholder="https://github.com/you/project"
+                aria-invalid={!!errors.repositoryUrl}
               />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addTechnology(techInput)}
-                disabled={!techInput.trim()}
+              {errors.repositoryUrl && (
+                <p className="text-destructive text-sm">{errors.repositoryUrl}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <span className="text-sm font-medium">Technology stack</span>
+              <div className="flex flex-wrap gap-2">
+                {technologyStack.map((technology) => (
+                  <span
+                    key={technology}
+                    className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium"
+                  >
+                    {technology}
+                    <button
+                      type="button"
+                      onClick={() => removeTechnology(technology)}
+                      aria-label={`Remove ${technology}`}
+                      className="hover:text-foreground transition-colors"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </span>
+                ))}
+                {technologyStack.length === 0 && (
+                  <span className="text-muted-foreground text-xs">No technologies added yet</span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={techInput}
+                  onChange={(event) => setTechInput(event.target.value)}
+                  onKeyDown={handleTechnologyKeyDown}
+                  placeholder="Add a technology, then press Enter"
+                  aria-invalid={!!errors.technologyStack}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => addTechnology(techInput)}
+                  disabled={!techInput.trim()}
+                >
+                  <Plus />
+                  Add
+                </Button>
+              </div>
+              {errors.technologyStack && (
+                <p className="text-destructive text-sm">{errors.technologyStack}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <span className="text-sm font-medium">Status</span>
+              <div
+                role="radiogroup"
+                aria-label="Project status"
+                className="border-input inline-flex w-fit rounded-lg border p-0.5"
               >
-                <Plus />
-                Add
+                {projectStatuses.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    role="radio"
+                    aria-checked={status === value}
+                    onClick={() => setStatus(value)}
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                      status === value
+                        ? 'bg-accent text-accent-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {projectStatusLabels[value]}
+                  </button>
+                ))}
+              </div>
+              {errors.status && <p className="text-destructive text-sm">{errors.status}</p>}
+            </div>
+
+            <div className="flex items-center gap-2 border-t pt-4">
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="animate-spin" />}
+                {isSubmitting
+                  ? mode === 'create'
+                    ? 'Creating project...'
+                    : 'Saving changes...'
+                  : mode === 'create'
+                    ? 'Create project'
+                    : 'Save changes'}
+              </Button>
+              <Button type="button" variant="ghost" asChild disabled={isSubmitting}>
+                <Link href={mode === 'edit' && initial ? `/projects/${initial.id}` : '/projects'}>
+                  Cancel
+                </Link>
               </Button>
             </div>
-            {errors.technologyStack && (
-              <p className="text-destructive text-sm">{errors.technologyStack}</p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <span className="text-sm font-medium">Status</span>
-            <div
-              role="radiogroup"
-              aria-label="Project status"
-              className="border-input inline-flex w-fit rounded-lg border p-0.5"
-            >
-              {projectStatuses.map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  role="radio"
-                  aria-checked={status === value}
-                  onClick={() => setStatus(value)}
-                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                    status === value
-                      ? 'bg-accent text-accent-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {projectStatusLabels[value]}
-                </button>
-              ))}
-            </div>
-            {errors.status && <p className="text-destructive text-sm">{errors.status}</p>}
-          </div>
-
-          <div className="flex items-center gap-2 border-t pt-4">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="animate-spin" />}
-              {mode === 'create' ? 'Create project' : 'Save changes'}
-            </Button>
-            <Button type="button" variant="ghost" asChild>
-              <Link href={mode === 'edit' && initial ? `/projects/${initial.id}` : '/projects'}>
-                Cancel
-              </Link>
-            </Button>
-          </div>
+          </fieldset>
         </form>
       </CardContent>
     </Card>

@@ -69,10 +69,10 @@ export function DeleteProjectButton({ projectId, projectName }: DeleteProjectBut
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isDeleting}
-            className="bg-destructive hover:bg-destructive/90 text-white"
+            className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:text-white dark:hover:bg-red-400"
           >
             {isDeleting && <Loader2 className="animate-spin" />}
-            Delete project
+            {isDeleting ? 'Deleting project...' : 'Delete project'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
