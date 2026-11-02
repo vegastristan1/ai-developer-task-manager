@@ -30,7 +30,12 @@ export const metadata: Metadata = {
   },
   description:
     'An AI-powered task and project management platform for software developers. Plan sprints, prioritize work, and track progress.',
-  keywords: ['developer task manager', 'AI project management', 'sprint planning', 'software teams'],
+  keywords: [
+    'developer task manager',
+    'AI project management',
+    'sprint planning',
+    'software teams',
+  ],
   robots: { index: false },
   openGraph: {
     title: 'AI Developer Task Manager',
