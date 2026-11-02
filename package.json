@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "help": "node scripts/show-scripts.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
